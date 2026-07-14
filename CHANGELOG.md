@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.4.11](https://github.com/kazeburo/mackerel-plugin-axslog/compare/v0.4.10...v0.4.11) - 2026-07-13
+
+- Add cooldown settings to dependabot configuration by @kazeburo in https://github.com/kazeburo/mackerel-plugin-axslog/pull/65
+- ci: bump the dependencies group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/kazeburo/mackerel-plugin-axslog/pull/68
+- Change Dependabot schedule from daily to weekly by @kazeburo in https://github.com/kazeburo/mackerel-plugin-axslog/pull/69
+- go: bump golang.org/x/sys from 0.37.0 to 0.46.0 in the dependencies group by @dependabot[bot] in https://github.com/kazeburo/mackerel-plugin-axslog/pull/70
+- ci: bump goreleaser/goreleaser-action from 7.2.2 to 7.2.3 in the dependencies group by @dependabot[bot] in https://github.com/kazeburo/mackerel-plugin-axslog/pull/71
+- go: bump golang.org/x/sys from 0.46.0 to 0.47.0 in the dependencies group by @dependabot[bot] in https://github.com/kazeburo/mackerel-plugin-axslog/pull/72
+
 ## [v0.4.10](https://github.com/kazeburo/mackerel-plugin-axslog/compare/v0.4.9...v0.4.10) - 2026-06-16
 
 - ci: bump actions/setup-go from 6.3.0 to 6.4.0 in the dependencies group by @dependabot[bot] in https://github.com/kazeburo/mackerel-plugin-axslog/pull/52
