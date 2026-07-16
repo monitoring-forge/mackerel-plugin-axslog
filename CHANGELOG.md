@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.4.12](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.11...v0.4.12) - 2026-07-16
+
+- repository trasfer by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/73
+- use montanaflynn/stats by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/75
+
 ## [v0.4.11](https://github.com/kazeburo/mackerel-plugin-axslog/compare/v0.4.10...v0.4.11) - 2026-07-13
 
 - Add cooldown settings to dependabot configuration by @kazeburo in https://github.com/kazeburo/mackerel-plugin-axslog/pull/65
