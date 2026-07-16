@@ -29,4 +29,4 @@ Help Options:
 
 ## Install
 
-Please download release page or `mkr plugin install kazeburo/mackerel-plugin-axslog`.
+Please download release page or `mkr plugin install monitoring-forge/mackerel-plugin-axslog`.

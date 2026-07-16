@@ -1,18 +1,18 @@
 package main
 
 import (
-	"crypto/md5"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"os/user"
 	"runtime"
 	"strings"
 
 	flags "github.com/jessevdk/go-flags"
-	"github.com/kazeburo/followparser"
-	"github.com/kazeburo/mackerel-plugin-axslog/axslog"
 	"github.com/mackerelio/golib/pluginutil"
+	"github.com/monitoring-forge/followparser"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
 var version string
@@ -55,9 +55,9 @@ func getFileStats(opts *axslog.CmdOpts, posFile, logFile string) (*axslog.Stats,
 		StartBufSize: startBufSize,
 		MaxBufSize:   maxScanTokenSize,
 	}
-	fp.Parse(posFile, logFile)
+	_, err := fp.Parse(posFile, logFile)
 
-	return stats, nil
+	return stats, err
 }
 
 func getStats(opts *axslog.CmdOpts) error {
@@ -84,10 +84,8 @@ func getStats(opts *axslog.CmdOpts) error {
 	for _, l := range logfiles {
 		logfile := l
 		go func() {
-			// BEGIN-NOSCAN
-			md5 := md5.Sum([]byte(logfile))
-			// END-NOSCAN
-			posFile := fmt.Sprintf("%s-axslog-v5-%s-%x", uid, opts.KeyPrefix, md5)
+			escapedLogfile := url.QueryEscape(logfile)
+			posFile := fmt.Sprintf("%s-axslog-v5-%s-%s", uid, opts.KeyPrefix, escapedLogfile)
 			stats, err := getFileStats(opts, posFile, logfile)
 			sCh <- axslog.StatsCh{
 				Stats:   stats,
