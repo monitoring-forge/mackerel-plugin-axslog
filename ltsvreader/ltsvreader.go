@@ -3,8 +3,8 @@ package ltsvreader
 import (
 	"bytes"
 
-	"github.com/kazeburo/ltsvparser"
-	"github.com/kazeburo/mackerel-plugin-axslog/axslog"
+	"github.com/monitoring-forge/ltsvparser"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
 // Reader struct

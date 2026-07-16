@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/kazeburo/mackerel-plugin-axslog/axslog"
-	"github.com/kazeburo/mackerel-plugin-axslog/jsonreader"
-	"github.com/kazeburo/mackerel-plugin-axslog/ltsvreader"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/jsonreader"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/ltsvreader"
 )
 
 type parser struct {

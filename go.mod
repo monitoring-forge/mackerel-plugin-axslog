@@ -1,11 +1,10 @@
-module github.com/kazeburo/mackerel-plugin-axslog
+module github.com/monitoring-forge/mackerel-plugin-axslog
 
 go 1.25.0
 
 require (
 	github.com/buger/jsonparser v1.2.0
 	github.com/jessevdk/go-flags v1.6.1
-	github.com/kazeburo/ltsvparser v0.2.0
 	github.com/mackerelio/golib v1.2.2
 )
 
@@ -13,6 +12,7 @@ require github.com/avast/retry-go/v4 v4.7.0 // indirect
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/kazeburo/followparser v0.2.10
+	github.com/monitoring-forge/followparser v0.2.12
+	github.com/monitoring-forge/ltsvparser v0.2.1
 	golang.org/x/sys v0.47.0 // indirect
 )

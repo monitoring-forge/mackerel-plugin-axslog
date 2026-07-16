@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/kazeburo/mackerel-plugin-axslog/axslog"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
 func TestParse(t *testing.T) {

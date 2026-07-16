@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	"github.com/buger/jsonparser"
-	"github.com/kazeburo/mackerel-plugin-axslog/axslog"
+	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
 // Reader struct
