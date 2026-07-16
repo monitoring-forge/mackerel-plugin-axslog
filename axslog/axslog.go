@@ -53,7 +53,6 @@ type Reader interface {
 // Stats :
 type Stats struct {
 	f64s     []float64
-	tf       float64
 	c1xx     float64
 	c2xx     float64
 	c3xx     float64
@@ -112,8 +111,6 @@ func (s *Stats) Append(ptime float64, status int) {
 	s.total++
 
 	s.f64s = append(s.f64s, ptime)
-	s.tf += ptime
-
 }
 
 // SetDuration :
@@ -170,7 +167,6 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	now := uint64(time.Now().Unix())
 
 	f64s := make([]float64, 0)
-	tf := float64(0)
 	c1xx := float64(0)
 	c2xx := float64(0)
 	c3xx := float64(0)
@@ -182,7 +178,6 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	for _, s := range statsAll {
 		for _, pt := range s.f64s {
 			f64s = append(f64s, pt)
-			tf += pt
 		}
 		if s.duration > 0 {
 			allDurationNG = false
