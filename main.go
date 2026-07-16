@@ -84,8 +84,8 @@ func getStats(opts *axslog.CmdOpts) error {
 	for _, l := range logfiles {
 		logfile := l
 		go func() {
-			escapedLogfile := url.QueryEscape(logfile)
-			posFile := fmt.Sprintf("%s-axslog-v5-%s-%s", uid, opts.KeyPrefix, escapedLogfile)
+			escaped := url.PathEscape(logfile)
+			posFile := fmt.Sprintf("%s-axslog-v5-%s-%s", uid, opts.KeyPrefix, escaped)
 			stats, err := getFileStats(opts, posFile, logfile)
 			sCh <- axslog.StatsCh{
 				Stats:   stats,
