@@ -2,13 +2,12 @@ package axslog
 
 import (
 	"fmt"
-	"math"
-	"sort"
 	"strconv"
 	"time"
 	"unsafe"
 
 	"github.com/dustin/go-humanize"
+	"github.com/montanaflynn/stats"
 )
 
 // PtimeFlag : ptime is exists
@@ -53,8 +52,7 @@ type Reader interface {
 
 // Stats :
 type Stats struct {
-	f64s     sort.Float64Slice
-	tf       float64
+	f64s     []float64
 	c1xx     float64
 	c2xx     float64
 	c3xx     float64
@@ -72,10 +70,6 @@ type StatsCh struct {
 	Err     error
 }
 
-func round(f float64) int64 {
-	return int64(math.Round(f)) - 1
-}
-
 func statusCode(status int) int {
 	switch status {
 	case 499:
@@ -87,7 +81,10 @@ func statusCode(status int) int {
 
 // NewStats :
 func NewStats() *Stats {
-	return &Stats{}
+	f64s := make([]float64, 0)
+	return &Stats{
+		f64s: f64s,
+	}
 }
 
 // GetTotal :
@@ -114,8 +111,6 @@ func (s *Stats) Append(ptime float64, status int) {
 	s.total++
 
 	s.f64s = append(s.f64s, ptime)
-	s.tf += ptime
-
 }
 
 // SetDuration :
@@ -126,14 +121,16 @@ func (s *Stats) SetDuration(d float64) {
 // Display :
 func (s *Stats) Display(keyPrefix string) {
 	now := uint64(time.Now().Unix())
-	sort.Sort(s.f64s)
-	fl := float64(len(s.f64s))
 	// fmt.Printf("count: %d\n", len(f64s))
 	if len(s.f64s) > 0 {
-		fmt.Printf("axslog.latency_%s.average\t%f\t%d\n", keyPrefix, s.tf/fl, now)
-		fmt.Printf("axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, s.f64s[round(fl*0.99)], now)
-		fmt.Printf("axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, s.f64s[round(fl*0.95)], now)
-		fmt.Printf("axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, s.f64s[round(fl*0.90)], now)
+		mean, _ := stats.Mean(s.f64s)
+		fmt.Printf("axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
+		p99, _ := stats.Percentile(s.f64s, 99)
+		fmt.Printf("axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
+		p95, _ := stats.Percentile(s.f64s, 95)
+		fmt.Printf("axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
+		p90, _ := stats.Percentile(s.f64s, 90)
+		fmt.Printf("axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
 	}
 
 	if s.duration > 0 {
@@ -169,8 +166,7 @@ func BInt(b []byte) (int, error) {
 func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	now := uint64(time.Now().Unix())
 
-	var f64s sort.Float64Slice
-	tf := float64(0)
+	f64s := make([]float64, 0)
 	c1xx := float64(0)
 	c2xx := float64(0)
 	c3xx := float64(0)
@@ -178,14 +174,13 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	c499 := float64(0)
 	c5xx := float64(0)
 	total := float64(0)
-	allDutrainNG := true
+	allDurationNG := true
 	for _, s := range statsAll {
 		for _, pt := range s.f64s {
 			f64s = append(f64s, pt)
-			tf += pt
 		}
 		if s.duration > 0 {
-			allDutrainNG = false
+			allDurationNG = false
 			c1xx += s.c1xx / s.duration
 			c2xx += s.c2xx / s.duration
 			c3xx += s.c3xx / s.duration
@@ -195,17 +190,19 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 			total += s.total / s.duration
 		}
 	}
-	sort.Sort(f64s)
-	fl := float64(len(f64s))
 	// fmt.Printf("count: %d\n", len(f64s))
 	if len(f64s) > 0 {
-		fmt.Printf("axslog.latency_%s.average\t%f\t%d\n", keyPrefix, tf/fl, now)
-		fmt.Printf("axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, f64s[round(fl*0.99)], now)
-		fmt.Printf("axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, f64s[round(fl*0.95)], now)
-		fmt.Printf("axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, f64s[round(fl*0.90)], now)
+		mean, _ := stats.Mean(f64s)
+		fmt.Printf("axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
+		p99, _ := stats.Percentile(f64s, 99)
+		fmt.Printf("axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
+		p95, _ := stats.Percentile(f64s, 95)
+		fmt.Printf("axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
+		p90, _ := stats.Percentile(f64s, 90)
+		fmt.Printf("axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
 	}
 
-	if !allDutrainNG {
+	if !allDurationNG {
 		fmt.Printf("axslog.access_num_%s.1xx_count\t%f\t%d\n", keyPrefix, c1xx, now)
 		fmt.Printf("axslog.access_num_%s.2xx_count\t%f\t%d\n", keyPrefix, c2xx, now)
 		fmt.Printf("axslog.access_num_%s.3xx_count\t%f\t%d\n", keyPrefix, c3xx, now)
