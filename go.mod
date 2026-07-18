@@ -12,8 +12,8 @@ require github.com/avast/retry-go/v4 v4.7.0 // indirect
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/monitoring-forge/followparser v0.2.12
-	github.com/monitoring-forge/ltsvparser v0.2.1
-	github.com/montanaflynn/stats v0.11.0
+	github.com/monitoring-forge/followparser v0.2.14
+	github.com/monitoring-forge/ltsvparser v0.2.3
+	github.com/montanaflynn/stats v0.12.1
 	golang.org/x/sys v0.47.0 // indirect
 )
