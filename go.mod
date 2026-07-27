@@ -14,6 +14,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/monitoring-forge/followparser v0.2.14
 	github.com/monitoring-forge/ltsvparser v0.2.3
-	github.com/montanaflynn/stats v0.12.1
+	github.com/montanaflynn/stats v0.12.2
 	golang.org/x/sys v0.47.0 // indirect
 )
