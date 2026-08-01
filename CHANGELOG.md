@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.4.13](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.12...v0.4.13) - 2026-08-01
+
+- update dependencies by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/76
+- ci: bump the dependencies group with 3 updates by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/79
+- go: bump github.com/montanaflynn/stats from 0.12.1 to 0.12.2 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/78
+- add pr-agent, golangci.yml and make lint. fix for some issues and ref… by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/80
+
 ## [v0.4.12](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.11...v0.4.12) - 2026-07-16
 
 - repository trasfer by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/73
