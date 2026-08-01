@@ -1,5 +1,6 @@
 VERSION=0.4.12
-LDFLAGS=-ldflags "-w -s -X main.version=${VERSION}"
+GITCOMMIT?=$(shell git describe --dirty --always)
+LDFLAGS=-ldflags "-w -s -X main.version=${VERSION} -X main.commit=${GITCOMMIT}"
 
 all: mackerel-plugin-axslog
 
@@ -12,13 +13,8 @@ linux: main.go parser.go axslog/*.go jsonreader/*.go ltsvreader/*.go
 	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o mackerel-plugin-axslog
 
 check:
-	go test ./...
+	go test -v ./...
 	go test -race ./...
 
-fmt:
-	go fmt ./...
-
-tag:
-	git tag v${VERSION}
-	git push origin v${VERSION}
-	git push origin master
+lint:
+	golangci-lint run --timeout 5m ./...

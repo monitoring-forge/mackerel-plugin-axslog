@@ -1,0 +1,28 @@
+name: PR Agent
+on:
+    pull_request:
+        types: [opened, reopened, ready_for_review, synchronize]
+    issue_comment:
+        types: [created, edited]
+jobs:
+    pr_agent_job:
+        runs-on: ubuntu-latest
+        permissions:
+            issues: write
+            pull-requests: write
+            contents: write
+            checks: write
+        if: ${{ github.event.sender.type != 'Bot' }}
+        steps:
+            - name: PR Agent action step
+              uses: the-pr-agent/pr-agent@570f67ed5fc8db5be74c18df070bc20079b64b0d # v0.41.0
+              env:
+                  OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  github_action_config.auto_review: "true"
+                  github_action_config.auto_describe: "true"
+                  github_action_config.auto_improve: "true"
+                  github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
+                  config.model: "openai/preview/Qwen3.6-35B-A3B"
+                  config.custom_model_max_tokens: 32000

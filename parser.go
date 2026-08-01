@@ -10,48 +10,47 @@ import (
 )
 
 type parser struct {
-	opts   *axslog.CmdOpts
+	opt    *axslog.Opt
 	stats  *axslog.Stats
 	ar     axslog.Reader
 	filter []byte
 }
 
-func NewParser(opts *axslog.CmdOpts, stats *axslog.Stats) *parser {
+func NewParser(opt *axslog.Opt, stats *axslog.Stats) *parser {
 
 	var ar axslog.Reader
-	switch opts.Format {
+	switch opt.Format {
 	case "ltsv":
-		ar = ltsvreader.New(opts.PtimeKey, opts.StatusKeys)
+		ar = ltsvreader.New(opt.PtimeKey, opt.StatusKeys)
 	case "json":
-		ar = jsonreader.New(opts.PtimeKey, opts.StatusKeys)
+		ar = jsonreader.New(opt.PtimeKey, opt.StatusKeys)
 	}
 
 	p := &parser{
-		opts:  opts,
+		opt:   opt,
 		stats: stats,
 		ar:    ar,
 	}
 
-	if opts.Filter != "" {
-		p.filter = []byte(opts.Filter)
+	if opt.Filter != "" {
+		p.filter = []byte(opt.Filter)
 	}
 
 	return p
 }
 
-func (p *parser) Parse(b []byte) error {
-	if p.filter != nil {
-		if p.opts.InvertFilter {
-			if bytes.Contains(b, p.filter) {
-				return nil
-			}
-		} else {
-			if !bytes.Contains(b, p.filter) {
-				return nil
-			}
-		}
+func (p *parser) filtered(b []byte) bool {
+	if p.filter == nil {
+		return true
 	}
-	if p.opts.SkipUntilBracket {
+	return !p.opt.InvertFilter == bytes.Contains(b, p.filter)
+}
+
+func (p *parser) Parse(b []byte) error {
+	if !p.filtered(b) {
+		return nil
+	}
+	if p.opt.SkipUntilBracket {
 		i := bytes.IndexByte(b, '{')
 		if i >= 0 {
 			b = b[i:]
@@ -59,11 +58,11 @@ func (p *parser) Parse(b []byte) error {
 	}
 	c, pt, st := p.ar.Parse(b)
 	if c&axslog.PtimeFlag == 0 {
-		log.Printf("No ptime. continue key:%s", p.opts.PtimeKey)
+		log.Printf("No ptime. continue key:%s", p.opt.PtimeKey)
 		return nil
 	}
 	if c&axslog.StatusFlag == 0 {
-		log.Printf("No status. continue key:%v", p.opts.StatusKeys)
+		log.Printf("No status. continue key:%v", p.opt.StatusKeys)
 		return nil
 	}
 	ptime, err := axslog.BFloat64(pt)

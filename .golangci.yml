@@ -1,0 +1,35 @@
+version: "2"
+run:
+  tests: true
+linters:
+  enable:
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - bodyclose
+    - gocognit
+    - dupl
+    - errcheck
+    - modernize
+    - errname
+    - errorlint
+    - prealloc
+
+  settings:
+    gocognit:
+      min-complexity: 15
+    dupl:
+      threshold: 100
+    modernize:
+      disable:
+        - plusbuild
+    errcheck:
+      exclude-functions:
+        - fmt.Fprintf
+        - (io.Closer).Close
+        - (*os.File).Close
+        - (*net.TCPConn).Close
+        - (*net.TCPListener).Close
+        - (*bytes.Buffer).Write
+        - (*strings.Builder).WriteString

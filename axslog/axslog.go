@@ -1,6 +1,7 @@
 package axslog
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"time"
@@ -32,7 +33,7 @@ func (hb *HumanBytes) UnmarshalFlag(value string) error {
 	return nil
 }
 
-type CmdOpts struct {
+type Opt struct {
 	LogFile          string     `long:"logfile" description:"path to nginx ltsv logfiles. multiple log files can be specified, separated by commas." required:"true"`
 	Format           string     `long:"format" default:"ltsv" description:"format of logfile. support json and ltsv"`
 	KeyPrefix        string     `long:"key-prefix" description:"Metric key prefix" required:"true"`
@@ -119,37 +120,39 @@ func (s *Stats) SetDuration(d float64) {
 }
 
 // Display :
-func (s *Stats) Display(keyPrefix string) {
+func (s *Stats) Display(keyPrefix string) string {
+	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
 	// fmt.Printf("count: %d\n", len(f64s))
 	if len(s.f64s) > 0 {
 		mean, _ := stats.Mean(s.f64s)
-		fmt.Printf("axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
 		p99, _ := stats.Percentile(s.f64s, 99)
-		fmt.Printf("axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
 		p95, _ := stats.Percentile(s.f64s, 95)
-		fmt.Printf("axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
 		p90, _ := stats.Percentile(s.f64s, 90)
-		fmt.Printf("axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
 	}
 
 	if s.duration > 0 {
-		fmt.Printf("axslog.access_num_%s.1xx_count\t%f\t%d\n", keyPrefix, s.c1xx/s.duration, now)
-		fmt.Printf("axslog.access_num_%s.2xx_count\t%f\t%d\n", keyPrefix, s.c2xx/s.duration, now)
-		fmt.Printf("axslog.access_num_%s.3xx_count\t%f\t%d\n", keyPrefix, s.c3xx/s.duration, now)
-		fmt.Printf("axslog.access_num_%s.4xx_count\t%f\t%d\n", keyPrefix, s.c4xx/s.duration, now)
-		fmt.Printf("axslog.access_num_%s.499_count\t%f\t%d\n", keyPrefix, s.c499/s.duration, now)
-		fmt.Printf("axslog.access_num_%s.5xx_count\t%f\t%d\n", keyPrefix, s.c5xx/s.duration, now)
-		fmt.Printf("axslog.access_total_%s.count\t%f\t%d\n", keyPrefix, s.total/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.1xx_count\t%f\t%d\n", keyPrefix, s.c1xx/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.2xx_count\t%f\t%d\n", keyPrefix, s.c2xx/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.3xx_count\t%f\t%d\n", keyPrefix, s.c3xx/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.4xx_count\t%f\t%d\n", keyPrefix, s.c4xx/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.499_count\t%f\t%d\n", keyPrefix, s.c499/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.5xx_count\t%f\t%d\n", keyPrefix, s.c5xx/s.duration, now)
+		fmt.Fprintf(&buf, "axslog.access_total_%s.count\t%f\t%d\n", keyPrefix, s.total/s.duration, now)
 	}
 	if s.total > 0 {
-		fmt.Printf("axslog.access_ratio_%s.1xx_percentage\t%f\t%d\n", keyPrefix, s.c1xx*100/s.total, now)
-		fmt.Printf("axslog.access_ratio_%s.2xx_percentage\t%f\t%d\n", keyPrefix, s.c2xx*100/s.total, now)
-		fmt.Printf("axslog.access_ratio_%s.3xx_percentage\t%f\t%d\n", keyPrefix, s.c3xx*100/s.total, now)
-		fmt.Printf("axslog.access_ratio_%s.4xx_percentage\t%f\t%d\n", keyPrefix, s.c4xx*100/s.total, now)
-		fmt.Printf("axslog.access_ratio_%s.499_percentage\t%f\t%d\n", keyPrefix, s.c499*100/s.total, now)
-		fmt.Printf("axslog.access_ratio_%s.5xx_percentage\t%f\t%d\n", keyPrefix, s.c5xx*100/s.total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.1xx_percentage\t%f\t%d\n", keyPrefix, s.c1xx*100/s.total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.2xx_percentage\t%f\t%d\n", keyPrefix, s.c2xx*100/s.total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.3xx_percentage\t%f\t%d\n", keyPrefix, s.c3xx*100/s.total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.4xx_percentage\t%f\t%d\n", keyPrefix, s.c4xx*100/s.total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.499_percentage\t%f\t%d\n", keyPrefix, s.c499*100/s.total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.5xx_percentage\t%f\t%d\n", keyPrefix, s.c5xx*100/s.total, now)
 	}
+	return buf.String()
 }
 
 // BFloat64 :
@@ -163,7 +166,8 @@ func BInt(b []byte) (int, error) {
 }
 
 // DisplayAll :
-func DisplayAll(statsAll []*Stats, keyPrefix string) {
+func DisplayAll(statsAll []*Stats, keyPrefix string) string {
+	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
 
 	f64s := make([]float64, 0)
@@ -176,9 +180,7 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	total := float64(0)
 	allDurationNG := true
 	for _, s := range statsAll {
-		for _, pt := range s.f64s {
-			f64s = append(f64s, pt)
-		}
+		f64s = append(f64s, s.f64s...)
 		if s.duration > 0 {
 			allDurationNG = false
 			c1xx += s.c1xx / s.duration
@@ -193,32 +195,33 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	// fmt.Printf("count: %d\n", len(f64s))
 	if len(f64s) > 0 {
 		mean, _ := stats.Mean(f64s)
-		fmt.Printf("axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
 		p99, _ := stats.Percentile(f64s, 99)
-		fmt.Printf("axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
 		p95, _ := stats.Percentile(f64s, 95)
-		fmt.Printf("axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
 		p90, _ := stats.Percentile(f64s, 90)
-		fmt.Printf("axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
+		fmt.Fprintf(&buf, "axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
 	}
 
 	if !allDurationNG {
-		fmt.Printf("axslog.access_num_%s.1xx_count\t%f\t%d\n", keyPrefix, c1xx, now)
-		fmt.Printf("axslog.access_num_%s.2xx_count\t%f\t%d\n", keyPrefix, c2xx, now)
-		fmt.Printf("axslog.access_num_%s.3xx_count\t%f\t%d\n", keyPrefix, c3xx, now)
-		fmt.Printf("axslog.access_num_%s.4xx_count\t%f\t%d\n", keyPrefix, c4xx, now)
-		fmt.Printf("axslog.access_num_%s.499_count\t%f\t%d\n", keyPrefix, c499, now)
-		fmt.Printf("axslog.access_num_%s.5xx_count\t%f\t%d\n", keyPrefix, c5xx, now)
-		fmt.Printf("axslog.access_total_%s.count\t%f\t%d\n", keyPrefix, total, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.1xx_count\t%f\t%d\n", keyPrefix, c1xx, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.2xx_count\t%f\t%d\n", keyPrefix, c2xx, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.3xx_count\t%f\t%d\n", keyPrefix, c3xx, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.4xx_count\t%f\t%d\n", keyPrefix, c4xx, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.499_count\t%f\t%d\n", keyPrefix, c499, now)
+		fmt.Fprintf(&buf, "axslog.access_num_%s.5xx_count\t%f\t%d\n", keyPrefix, c5xx, now)
+		fmt.Fprintf(&buf, "axslog.access_total_%s.count\t%f\t%d\n", keyPrefix, total, now)
 	}
 
 	if total > 0 {
-		fmt.Printf("axslog.access_ratio_%s.1xx_percentage\t%f\t%d\n", keyPrefix, c1xx*100/total, now)
-		fmt.Printf("axslog.access_ratio_%s.2xx_percentage\t%f\t%d\n", keyPrefix, c2xx*100/total, now)
-		fmt.Printf("axslog.access_ratio_%s.3xx_percentage\t%f\t%d\n", keyPrefix, c3xx*100/total, now)
-		fmt.Printf("axslog.access_ratio_%s.4xx_percentage\t%f\t%d\n", keyPrefix, c4xx*100/total, now)
-		fmt.Printf("axslog.access_ratio_%s.499_percentage\t%f\t%d\n", keyPrefix, c499*100/total, now)
-		fmt.Printf("axslog.access_ratio_%s.5xx_percentage\t%f\t%d\n", keyPrefix, c5xx*100/total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.1xx_percentage\t%f\t%d\n", keyPrefix, c1xx*100/total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.2xx_percentage\t%f\t%d\n", keyPrefix, c2xx*100/total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.3xx_percentage\t%f\t%d\n", keyPrefix, c3xx*100/total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.4xx_percentage\t%f\t%d\n", keyPrefix, c4xx*100/total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.499_percentage\t%f\t%d\n", keyPrefix, c499*100/total, now)
+		fmt.Fprintf(&buf, "axslog.access_ratio_%s.5xx_percentage\t%f\t%d\n", keyPrefix, c5xx*100/total, now)
 	}
 
+	return buf.String()
 }

@@ -14,7 +14,7 @@ type Reader struct {
 
 // New :
 func New(ptimeKey string, statusKeys []string) *Reader {
-	keys := make([][]string, 0)
+	keys := make([][]string, 0, len(statusKeys)+1)
 	keys = append(keys, []string{ptimeKey})
 	for _, stKey := range statusKeys {
 		keys = append(keys, []string{stKey})
