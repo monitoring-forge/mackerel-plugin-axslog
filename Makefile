@@ -1,4 +1,4 @@
-VERSION=0.4.12
+VERSION=0.4.13
 GITCOMMIT?=$(shell git describe --dirty --always)
 LDFLAGS=-ldflags "-w -s -X main.version=${VERSION} -X main.commit=${GITCOMMIT}"
 
