@@ -43,16 +43,7 @@ func (p *parser) filtered(b []byte) bool {
 	if p.filter == nil {
 		return true
 	}
-	if p.opt.InvertFilter {
-		if bytes.Contains(b, p.filter) {
-			return false
-		}
-	} else {
-		if !bytes.Contains(b, p.filter) {
-			return false
-		}
-	}
-	return true
+	return !p.opt.InvertFilter == bytes.Contains(b, p.filter)
 }
 
 func (p *parser) Parse(b []byte) error {

@@ -2,6 +2,7 @@ package ltsvreader
 
 import (
 	"bytes"
+	"log"
 
 	"github.com/monitoring-forge/ltsvparser"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
@@ -30,7 +31,7 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 	var pt []byte
 	var st []byte
 	stIndex := len(r.keys)
-	_ = ltsvparser.Each(data, func(idx int, value []byte) error {
+	err := ltsvparser.Each(data, func(idx int, value []byte) error {
 		// `-` はskip
 		if bytes.Equal(value, bHif) || len(value) == 0 {
 			return nil
@@ -53,6 +54,9 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 		}
 		return nil
 	}, r.keys...)
+	if err != nil {
+		log.Printf("Parse error: %v", err)
+	}
 	return c, pt, st
 
 }

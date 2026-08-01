@@ -84,8 +84,9 @@ func getStats(opt *axslog.Opt) error {
 		if err != nil {
 			return err
 		}
-		stats.Display(opt.KeyPrefix)
-		return nil
+		out := stats.Display(opt.KeyPrefix)
+		_, printErr := fmt.Print(out)
+		return printErr
 	}
 
 	sCh := make(chan axslog.StatsCh, len(logfiles))
@@ -119,8 +120,9 @@ func getStats(opt *axslog.Opt) error {
 		}
 	}
 
-	axslog.DisplayAll(statsAll, opt.KeyPrefix)
-	return nil
+	out := axslog.DisplayAll(statsAll, opt.KeyPrefix)
+	_, printErr := fmt.Print(out)
+	return printErr
 }
 
 func main() {
