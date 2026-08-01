@@ -32,7 +32,7 @@ func (hb *HumanBytes) UnmarshalFlag(value string) error {
 	return nil
 }
 
-type CmdOpts struct {
+type Opt struct {
 	LogFile          string     `long:"logfile" description:"path to nginx ltsv logfiles. multiple log files can be specified, separated by commas." required:"true"`
 	Format           string     `long:"format" default:"ltsv" description:"format of logfile. support json and ltsv"`
 	KeyPrefix        string     `long:"key-prefix" description:"Metric key prefix" required:"true"`
@@ -176,9 +176,7 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) {
 	total := float64(0)
 	allDurationNG := true
 	for _, s := range statsAll {
-		for _, pt := range s.f64s {
-			f64s = append(f64s, pt)
-		}
+		f64s = append(f64s, s.f64s...)
 		if s.duration > 0 {
 			allDurationNG = false
 			c1xx += s.c1xx / s.duration

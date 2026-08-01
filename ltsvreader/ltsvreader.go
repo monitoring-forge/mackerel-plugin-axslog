@@ -14,7 +14,7 @@ type Reader struct {
 
 // New :
 func New(ptimeKey string, statusKeys []string) *Reader {
-	keys := make([][]byte, 0)
+	keys := make([][]byte, 0, len(statusKeys)+1)
 	keys = append(keys, []byte(ptimeKey))
 	for _, stKey := range statusKeys {
 		keys = append(keys, []byte(stKey))
@@ -30,7 +30,7 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 	var pt []byte
 	var st []byte
 	stIndex := len(r.keys)
-	ltsvparser.Each(data, func(idx int, value []byte) error {
+	_ = ltsvparser.Each(data, func(idx int, value []byte) error {
 		// `-` はskip
 		if bytes.Equal(value, bHif) || len(value) == 0 {
 			return nil

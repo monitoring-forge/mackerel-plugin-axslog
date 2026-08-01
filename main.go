@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"os/user"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -16,6 +17,14 @@ import (
 )
 
 var version string
+var commit string
+
+const (
+	OK = iota
+	WARNING
+	CRITICAL
+	UNKNOWN
+)
 
 var (
 	// MaxReadSizeJSON : Maximum size for read
@@ -28,14 +37,14 @@ var (
 	startBufSize     = 4096
 )
 
-func getFileStats(opts *axslog.CmdOpts, posFile, logFile string) (*axslog.Stats, error) {
+func getFileStats(opt *axslog.Opt, posFile, logFile string) (*axslog.Stats, error) {
 	stats := axslog.NewStats()
-	if opts.Format != "ltsv" && opts.Format != "json" {
-		return stats, fmt.Errorf("format %s is not supported", opts.Format)
+	if opt.Format != "ltsv" && opt.Format != "json" {
+		return stats, fmt.Errorf("format %s is not supported", opt.Format)
 	}
-	maxReadSizeU := uint64(opts.MaxReadSize)
+	maxReadSizeU := uint64(opt.MaxReadSize)
 	if maxReadSizeU == 0 {
-		if opts.Format == "ltsv" {
+		if opt.Format == "ltsv" {
 			maxReadSizeU = uint64(maxReadSizeLTSV)
 		} else {
 			maxReadSizeU = uint64(maxReadSizeJSON)
@@ -46,7 +55,7 @@ func getFileStats(opts *axslog.CmdOpts, posFile, logFile string) (*axslog.Stats,
 	}
 	maxReadSize := int64(maxReadSizeU)
 
-	parser := NewParser(opts, stats)
+	parser := NewParser(opt, stats)
 	fp := &followparser.Parser{
 		WorkDir:      pluginutil.PluginWorkDir(),
 		Callback:     parser,
@@ -60,22 +69,22 @@ func getFileStats(opts *axslog.CmdOpts, posFile, logFile string) (*axslog.Stats,
 	return stats, err
 }
 
-func getStats(opts *axslog.CmdOpts) error {
+func getStats(opt *axslog.Opt) error {
 	curUser, _ := user.Current()
 	uid := "0"
 	if curUser != nil {
 		uid = curUser.Uid
 	}
 
-	logfiles := strings.Split(opts.LogFile, ",")
+	logfiles := strings.Split(opt.LogFile, ",")
 
 	if len(logfiles) == 1 {
-		posFile := fmt.Sprintf("%s-axslog-v5-%s", uid, opts.KeyPrefix)
-		stats, err := getFileStats(opts, posFile, opts.LogFile)
+		posFile := fmt.Sprintf("%s-axslog-v5-%s", uid, opt.KeyPrefix)
+		stats, err := getFileStats(opt, posFile, opt.LogFile)
 		if err != nil {
 			return err
 		}
-		stats.Display(opts.KeyPrefix)
+		stats.Display(opt.KeyPrefix)
 		return nil
 	}
 
@@ -83,16 +92,16 @@ func getStats(opts *axslog.CmdOpts) error {
 	defer close(sCh)
 	for _, l := range logfiles {
 		logfile := l
-		go func() {
+		go func(logfile string) {
 			escaped := url.PathEscape(logfile)
-			posFile := fmt.Sprintf("%s-axslog-v5-%s-%s", uid, opts.KeyPrefix, escaped)
-			stats, err := getFileStats(opts, posFile, logfile)
+			posFile := fmt.Sprintf("%s-axslog-v5-%s-%s", uid, opt.KeyPrefix, escaped)
+			stats, err := getFileStats(opt, posFile, logfile)
 			sCh <- axslog.StatsCh{
 				Stats:   stats,
 				Logfile: logfile,
 				Err:     err,
 			}
-		}()
+		}(logfile)
 	}
 	errCnt := 0
 	var statsAll []*axslog.Stats
@@ -110,18 +119,8 @@ func getStats(opts *axslog.CmdOpts) error {
 		}
 	}
 
-	axslog.DisplayAll(statsAll, opts.KeyPrefix)
+	axslog.DisplayAll(statsAll, opt.KeyPrefix)
 	return nil
-}
-
-func printVersion() {
-	fmt.Printf(`%s %s
-Compiler: %s %s
-`,
-		os.Args[0],
-		version,
-		runtime.Compiler,
-		runtime.Version())
 }
 
 func main() {
@@ -129,21 +128,34 @@ func main() {
 }
 
 func _main() int {
-	opts := &axslog.CmdOpts{}
-	psr := flags.NewParser(opts, flags.HelpFlag|flags.PassDoubleDash)
+	opt := &axslog.Opt{}
+	psr := flags.NewParser(opt, flags.HelpFlag|flags.PassDoubleDash)
 	_, err := psr.Parse()
-	if opts.Version {
-		printVersion()
-		return 0
-	}
-	if err != nil {
+	if opt.Version {
+		if commit == "" {
+			commit = "dev"
+		}
+		fmt.Printf(
+			"%s-%s\n%s/%s, %s, %s\n",
+			filepath.Base(os.Args[0]),
+			version,
+			runtime.GOOS,
+			runtime.GOARCH,
+			runtime.Version(),
+			commit)
+		return OK
+	} else if flags.WroteHelp(err) {
+		fmt.Fprintf(os.Stdout, "%v\n", err)
+		return OK
+	} else if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		return 1
+		return UNKNOWN
 	}
-	err = getStats(opts)
+
+	err = getStats(opt)
 	if err != nil {
 		log.Printf("getStats: %v", err)
-		return 1
+		return CRITICAL
 	}
-	return 0
+	return OK
 }
