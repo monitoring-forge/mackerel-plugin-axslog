@@ -24,5 +24,6 @@ jobs:
                   github_action_config.auto_describe: "true"
                   github_action_config.auto_improve: "true"
                   github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
-                  config.model: "openai/preview/Qwen3.6-35B-A3B"
+                  config.model: "openai/preview/Kimi-K2.7-Code"
+                  config.fallback_models: '["openai/preview/Qwen3.6-35B-A3B","openai/gpt-oss-120b"]'
                   config.custom_model_max_tokens: 32000
