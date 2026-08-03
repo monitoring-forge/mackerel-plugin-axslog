@@ -33,3 +33,5 @@ linters:
         - (*net.TCPListener).Close
         - (*bytes.Buffer).Write
         - (*strings.Builder).WriteString
+        - (*net/http.Server).Close
+        - (net.Listener).Close
