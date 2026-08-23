@@ -15,15 +15,36 @@ jobs:
         if: ${{ github.event.sender.type != 'Bot' }}
         steps:
             - name: PR Agent action step
-              uses: the-pr-agent/pr-agent@570f67ed5fc8db5be74c18df070bc20079b64b0d # v0.41.0
+              uses: the-pr-agent/pr-agent@f6af7d77554ff8d26adffded077e6461329e92fa # v0.42.0
               env:
                   OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+                  openrouter.key: ${{ secrets.OPENROUTER_KEY }}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   github_action_config.auto_review: "true"
                   github_action_config.auto_describe: "true"
                   github_action_config.auto_improve: "true"
                   github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
-                  config.model: "openai/preview/Kimi-K2.7-Code"
-                  config.fallback_models: '["openai/preview/Qwen3.6-35B-A3B","openai/gpt-oss-120b"]'
-                  config.custom_model_max_tokens: 32000
+                  config.model: "openrouter/openai/gpt-5.6-terra"
+                  config.fallback_models: '["openrouter/openai/gpt-5.6-luna"]'
+                  config.custom_model_max_tokens: 256000
+                  config.max_model_tokens: 120000
+                  config.temperature: "0"
+                  pr_code_suggestions.commitable_code_suggestions: "true"
+                  pr_reviewer.num_code_suggestions: "3"
+                  pr_reviewer.enable_review_score: "false"
+                  pr_reviewer.extra_instructions: |
+                      Review only:
+                      - correctness
+                      - bugs
+                      - security
+                      - performance
+                      - maintainability
+                      Ignore:
+                      - formatting
+                      - naming
+                      - style
+                      - comments
+                      Do not suggest refactoring unless it addresses
+                      a maintainability or correctness issue.
+                      Be concise.
