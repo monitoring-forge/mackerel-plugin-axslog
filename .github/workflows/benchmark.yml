@@ -1,0 +1,83 @@
+name: benchmark
+on:
+    pull_request:
+        types: [opened, synchronize]
+
+permissions:
+    contents: read
+    pull-requests: write
+
+jobs:
+    benchmark:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout base branch
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+              with:
+                  ref: ${{ github.base_ref }}
+                  fetch-depth: 0
+
+            - name: Setup Go (base)
+              uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v4
+              with:
+                  go-version-file: go.mod
+
+            - name: Run base benchmark
+              run: |
+                  go test -bench BenchmarkParse -benchmem -count 10 -run '^$' . | tee /tmp/base-bench.txt
+
+            - name: Checkout PR branch
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+              with:
+                  ref: ${{ github.event.pull_request.head.sha }}
+                  fetch-depth: 0
+
+            - name: Setup Go (PR)
+              uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v4
+              with:
+                  go-version-file: go.mod
+
+            - name: Run PR benchmark
+              run: |
+                  cp /tmp/base-bench.txt ./base-bench.txt
+                  go test -bench BenchmarkParse -benchmem -count 10 -run '^$' . | tee pr-bench.txt
+
+            - name: Install benchstat
+              run: go install golang.org/x/perf/cmd/benchstat@82a0b07e230d76fa1b3036c383d7a98172f87334
+
+            - name: Compare benchmarks
+              id: compare
+              run: |
+                  echo 'BENCHSTAT_OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
+                  benchstat base-bench.txt pr-bench.txt >> "$GITHUB_OUTPUT"
+                  echo 'EOF' >> "$GITHUB_OUTPUT"
+
+            - name: Find existing benchmark comment
+              uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4
+              id: find-comment
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-author: github-actions[bot]
+                  body-includes: "<!-- benchmark-comment -->"
+
+            - name: Post benchmark comment
+              uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
+              with:
+                  issue-number: ${{ github.event.pull_request.number }}
+                  comment-id: ${{ steps.find-comment.outputs.comment-id }}
+                  edit-mode: replace
+                  body: |
+                      <!-- benchmark-comment -->
+                      ## Benchmark Comparison
+
+                      Base: `${{ github.base_ref }}`
+                      PR: `${{ github.head_ref }}`
+
+                      <details>
+                      <summary>BenchmarkParse results</summary>
+
+                      ```
+                      ${{ steps.compare.outputs.BENCHSTAT_OUTPUT }}
+                      ```
+
+                      </details>
