@@ -7,12 +7,12 @@ import (
 )
 
 func TestFiltered(t *testing.T) {
-	opt := &axslog.Opt{
+	opt := &Opt{
 		Filter:       "test",
 		InvertFilter: false,
 	}
 	stats := axslog.NewStats()
-	p := NewParser(opt, stats)
+	p := opt.NewParser(stats)
 
 	tests := []struct {
 		name     string
@@ -30,5 +30,41 @@ func TestFiltered(t *testing.T) {
 				t.Errorf("filtered() = %v, want %v", result, tt.expected)
 			}
 		})
+	}
+}
+
+func BenchmarkParse_LTSVParse(b *testing.B) {
+	opt := &Opt{
+		Format:     "ltsv",
+		PtimeKey:   "ptime",
+		StatusKeys: []string{"status"},
+		Filter:     "",
+	}
+	stats := axslog.NewStats()
+	p := opt.NewParser(stats)
+
+	data := []byte("time:08/Mar/2017:14:12:40 +0900	status:200	ptime:0.030	host:10.20.30.40	req:GET /example/path HTTP/1.1	method:GET	size:941	ua:Mozilla/5.0 (Linux; Android 4.4.2; SO-01F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Mobile Safari/537.36")
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		_ = p.Parse(data)
+	}
+}
+
+func BenchmarkParse_JSONParse(b *testing.B) {
+	opt := &Opt{
+		Format:     "json",
+		PtimeKey:   "ptime",
+		StatusKeys: []string{"status"},
+		Filter:     "",
+	}
+	stats := axslog.NewStats()
+	p := opt.NewParser(stats)
+
+	data := []byte(`{"time":"08/Mar/2017:14:12:40 +0900","status":"200","ptime":"0.030","host":"10.20.30.40","req":"GET /example/path HTTP/1.1","method":"GET","size":"941","ua":"Mozilla/5.0 (Linux; Android 4.4.2; SO-01F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Mobile Safari/537.36"}`)
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		_ = p.Parse(data)
 	}
 }

@@ -10,13 +10,13 @@ import (
 )
 
 type parser struct {
-	opt    *axslog.Opt
+	opt    *Opt
 	stats  *axslog.Stats
 	ar     axslog.Reader
 	filter []byte
 }
 
-func NewParser(opt *axslog.Opt, stats *axslog.Stats) *parser {
+func (opt *Opt) NewParser(stats *axslog.Stats) *parser {
 
 	var ar axslog.Reader
 	switch opt.Format {

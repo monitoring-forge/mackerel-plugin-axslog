@@ -23,7 +23,7 @@ _testmain.go
 *.test
 *.prof
 
-mackerel-plugin-axslog
+mackerel-plugin-axslog*
 vendor/
 dist/
 *~
