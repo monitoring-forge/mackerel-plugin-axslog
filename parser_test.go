@@ -47,7 +47,7 @@ func BenchmarkParse_LTSVParse(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 	for range b.N {
-		p.Parse(data)
+		_ = p.Parse(data)
 	}
 }
 
@@ -65,6 +65,6 @@ func BenchmarkParse_JSONParse(b *testing.B) {
 	b.ResetTimer()
 	b.ReportAllocs()
 	for range b.N {
-		p.Parse(data)
+		_ = p.Parse(data)
 	}
 }
