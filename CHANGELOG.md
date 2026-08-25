@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.4.14](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.13...v0.4.14) - 2026-08-25
+
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/81
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/83
+- go: bump the dependencies group with 2 updates by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/85
+- refactor: reorganize code structure and improve flag handling by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/86
+- feat: add benchmark workflow and update dependencies by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/87
+
 ## [v0.4.13](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.12...v0.4.13) - 2026-08-01
 
 - update dependencies by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/76
