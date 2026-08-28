@@ -16,8 +16,8 @@ github.com/monitoring-forge/flagrun v0.0.8 h1:CEoMMdFpZ4KOTiBy2mAUQtlgFsTqpvpEoL
 github.com/monitoring-forge/flagrun v0.0.8/go.mod h1:yAwxGIEx81wU4JOMp6hz7SdSYWgT/Hr4JXEdHlEn1mw=
 github.com/monitoring-forge/followparser v0.2.15 h1:JiCtehe8NVd8BdfuLFzM9EDoVO3Ya4g3lunhJpnZk7k=
 github.com/monitoring-forge/followparser v0.2.15/go.mod h1:L3I8hiQxz9ahjz/pPxCVfjBYHTejwKeR7XaG9TYglyY=
-github.com/monitoring-forge/ltsvparser v0.2.7 h1:6FFnXzhJgU3LRsJ0z4bNbEtJEK+Xo9zAyIIFZK8X8uI=
-github.com/monitoring-forge/ltsvparser v0.2.7/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
+github.com/monitoring-forge/ltsvparser v0.2.8 h1:eb/lY5zFsw7RYcI8H0bZP3Jm9d9MrxRyIuwXAZlgyGk=
+github.com/monitoring-forge/ltsvparser v0.2.8/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
 github.com/montanaflynn/stats v0.12.4 h1:amtNRsti20yIhcrkfUJGwoYqBR82jKQFE8SNNYVgGn0=
 github.com/montanaflynn/stats v0.12.4/go.mod h1:etXPPgVO6n31NxCd9KQUMvCM+ve0ruNzt6R8Bnaayow=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=

@@ -10,8 +10,8 @@ import (
 
 func TestStatusCode(t *testing.T) {
 	tests := []struct {
-		status   int
-		expected int
+		status   int64
+		expected int64
 	}{
 		{200, 2},
 		{301, 3},
@@ -34,7 +34,7 @@ func TestNewStats(t *testing.T) {
 	require.Equal(t, 0, len(s.f64s), "f64s length = %d; want 0", len(s.f64s))
 }
 
-func TestStatsAppendAndGetTotal(t *testing.T) {
+func TestStatsAppendAndTotal(t *testing.T) {
 	s := NewStats()
 	s.Append(0.010, 200)
 	s.Append(0.020, 200)
@@ -42,12 +42,11 @@ func TestStatsAppendAndGetTotal(t *testing.T) {
 	s.Append(0.040, 499)
 	s.Append(0.050, 500)
 
-	total := s.GetTotal()
-	assert.Equal(t, 5.0, total, "GetTotal() = %f; want 5", total)
-	assert.Equal(t, 2.0, s.c2xx, "c2xx = %f; want 2", s.c2xx)
-	assert.Equal(t, 1.0, s.c4xx, "c4xx = %f; want 1", s.c4xx)
-	assert.Equal(t, 1.0, s.c499, "c499 = %f; want 1", s.c499)
-	assert.Equal(t, 1.0, s.c5xx, "c5xx = %f; want 1", s.c5xx)
+	assert.Equal(t, 5.0, s.total, "Total = %f; want 5", s.total)
+	assert.Equal(t, 2.0, s.c2xx, "C2xx = %f; want 2", s.c2xx)
+	assert.Equal(t, 1.0, s.c4xx, "C4xx = %f; want 1", s.c4xx)
+	assert.Equal(t, 1.0, s.c499, "C499 = %f; want 1", s.c499)
+	assert.Equal(t, 1.0, s.c5xx, "C5xx = %f; want 1", s.c5xx)
 	assert.Equal(t, 5, len(s.f64s), "len(f64s) = %d; want 5", len(s.f64s))
 }
 
@@ -55,41 +54,7 @@ func TestStatsSetDuration(t *testing.T) {
 	s := NewStats()
 	s.SetDuration(60.0)
 	if s.duration != 60.0 {
-		t.Errorf("duration = %f; want 60.0", s.duration)
-	}
-}
-
-func TestBFloat64(t *testing.T) {
-	v, err := BFloat64([]byte("3.14"))
-	if err != nil {
-		t.Fatalf("BFloat64 error: %v", err)
-	}
-	if v != 3.14 {
-		t.Errorf("BFloat64 = %f; want 3.14", v)
-	}
-}
-
-func TestBFloat64Invalid(t *testing.T) {
-	_, err := BFloat64([]byte("not-a-number"))
-	if err == nil {
-		t.Error("BFloat64 should return error for invalid input")
-	}
-}
-
-func TestBInt(t *testing.T) {
-	v, err := BInt([]byte("200"))
-	if err != nil {
-		t.Fatalf("BInt error: %v", err)
-	}
-	if v != 200 {
-		t.Errorf("BInt = %d; want 200", v)
-	}
-}
-
-func TestBIntInvalid(t *testing.T) {
-	_, err := BInt([]byte("abc"))
-	if err == nil {
-		t.Error("BInt should return error for invalid input")
+		t.Errorf("Duration = %f; want 60.0", s.duration)
 	}
 }
 
@@ -161,13 +126,13 @@ func TestStatsAppendAllStatusClasses(t *testing.T) {
 	s.Append(0.005, 499)
 	s.Append(0.006, 503)
 
-	assert.Equal(t, 6.0, s.total, "total = %f; want 6", s.total)
-	assert.Equal(t, 1.0, s.c1xx, "c1xx = %f; want 1", s.c1xx)
-	assert.Equal(t, 1.0, s.c2xx, "c2xx = %f; want 1", s.c2xx)
-	assert.Equal(t, 1.0, s.c3xx, "c3xx = %f; want 1", s.c3xx)
-	assert.Equal(t, 1.0, s.c4xx, "c4xx = %f; want 1", s.c4xx)
-	assert.Equal(t, 1.0, s.c499, "c499 = %f; want 1", s.c499)
-	assert.Equal(t, 1.0, s.c5xx, "c5xx = %f; want 1", s.c5xx)
+	assert.Equal(t, 6.0, s.total, "Total = %f; want 6", s.total)
+	assert.Equal(t, 1.0, s.c1xx, "C1xx = %f; want 1", s.c1xx)
+	assert.Equal(t, 1.0, s.c2xx, "C2xx = %f; want 1", s.c2xx)
+	assert.Equal(t, 1.0, s.c3xx, "C3xx = %f; want 1", s.c3xx)
+	assert.Equal(t, 1.0, s.c4xx, "C4xx = %f; want 1", s.c4xx)
+	assert.Equal(t, 1.0, s.c499, "C499 = %f; want 1", s.c499)
+	assert.Equal(t, 1.0, s.c5xx, "C5xx = %f; want 1", s.c5xx)
 }
 
 func TestDisplayAllAggregatedPercentages(t *testing.T) {

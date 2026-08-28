@@ -18,3 +18,6 @@ check:
 
 lint:
 	golangci-lint run --timeout 5m ./...
+
+bench:
+	go test -bench BenchmarkParse -benchmem -run '^$$' .
