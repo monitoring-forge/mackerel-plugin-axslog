@@ -59,9 +59,17 @@ func NewStats() *Stats {
 	}
 }
 
-// GetTotal :
-func (s *Stats) GetTotal() float64 {
-	return s.total
+// Dump status for debug/test
+func (s *Stats) Dump() map[string]float64 {
+	return map[string]float64{
+		"c1xx":  s.c1xx,
+		"c2xx":  s.c2xx,
+		"c3xx":  s.c3xx,
+		"c4xx":  s.c4xx,
+		"c499":  s.c499,
+		"c5xx":  s.c5xx,
+		"total": s.total,
+	}
 }
 
 // Append :
