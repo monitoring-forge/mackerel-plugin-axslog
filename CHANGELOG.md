@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.4.15](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.14...v0.4.15) - 2026-08-28
+
+- fix: update ltsvparser dependency to v0.2.7 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/88
+- feat: update ltsvparser to v0.2.8 and refactor parsing functions by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/90
+- docs: 更新された README.md にインストール手順と使用例を追加 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/91
+
 ## [v0.4.14](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.13...v0.4.14) - 2026-08-25
 
 - Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/81
