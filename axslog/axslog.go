@@ -3,9 +3,7 @@ package axslog
 import (
 	"bytes"
 	"fmt"
-	"strconv"
 	"time"
-	"unsafe"
 
 	"github.com/montanaflynn/stats"
 )
@@ -44,7 +42,7 @@ type StatsCh struct {
 	Err     error
 }
 
-func statusCode(status int) int {
+func statusCode(status int64) int64 {
 	switch status {
 	case 499:
 		return 499
@@ -67,7 +65,7 @@ func (s *Stats) GetTotal() float64 {
 }
 
 // Append :
-func (s *Stats) Append(ptime float64, status int) {
+func (s *Stats) Append(ptime float64, status int64) {
 	switch statusCode(status) {
 	case 2:
 		s.c2xx++
@@ -126,16 +124,6 @@ func (s *Stats) Display(keyPrefix string) string {
 		fmt.Fprintf(&buf, "axslog.access_ratio_%s.5xx_percentage\t%f\t%d\n", keyPrefix, s.c5xx*100/s.total, now)
 	}
 	return buf.String()
-}
-
-// BFloat64 :
-func BFloat64(b []byte) (float64, error) {
-	return strconv.ParseFloat(unsafe.String(unsafe.SliceData(b), len(b)), 64)
-}
-
-// BInt :
-func BInt(b []byte) (int, error) {
-	return strconv.Atoi(unsafe.String(unsafe.SliceData(b), len(b)))
 }
 
 // DisplayAll :

@@ -10,8 +10,8 @@ import (
 
 func TestStatusCode(t *testing.T) {
 	tests := []struct {
-		status   int
-		expected int
+		status   int64
+		expected int64
 	}{
 		{200, 2},
 		{301, 3},
@@ -56,40 +56,6 @@ func TestStatsSetDuration(t *testing.T) {
 	s.SetDuration(60.0)
 	if s.duration != 60.0 {
 		t.Errorf("duration = %f; want 60.0", s.duration)
-	}
-}
-
-func TestBFloat64(t *testing.T) {
-	v, err := BFloat64([]byte("3.14"))
-	if err != nil {
-		t.Fatalf("BFloat64 error: %v", err)
-	}
-	if v != 3.14 {
-		t.Errorf("BFloat64 = %f; want 3.14", v)
-	}
-}
-
-func TestBFloat64Invalid(t *testing.T) {
-	_, err := BFloat64([]byte("not-a-number"))
-	if err == nil {
-		t.Error("BFloat64 should return error for invalid input")
-	}
-}
-
-func TestBInt(t *testing.T) {
-	v, err := BInt([]byte("200"))
-	if err != nil {
-		t.Fatalf("BInt error: %v", err)
-	}
-	if v != 200 {
-		t.Errorf("BInt = %d; want 200", v)
-	}
-}
-
-func TestBIntInvalid(t *testing.T) {
-	_, err := BInt([]byte("abc"))
-	if err == nil {
-		t.Error("BInt should return error for invalid input")
 	}
 }
 

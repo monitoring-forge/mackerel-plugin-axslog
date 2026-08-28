@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"log"
 
+	"github.com/buger/jsonparser"
+	"github.com/monitoring-forge/ltsvparser"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/jsonreader"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/ltsvreader"
@@ -65,12 +67,12 @@ func (p *parser) Parse(b []byte) error {
 		log.Printf("No status. continue key:%v", p.opt.StatusKeys)
 		return nil
 	}
-	ptime, err := axslog.BFloat64(pt)
+	ptime, err := ltsvparser.ParseFloat(pt)
 	if err != nil {
 		log.Printf("Failed to convert ptime. continue: %v", err)
 		return nil
 	}
-	status, err := axslog.BInt(st)
+	status, err := jsonparser.ParseInt(st)
 	if err != nil {
 		log.Printf("Failed to convert status. continue: %v", err)
 		return nil
