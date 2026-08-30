@@ -160,8 +160,8 @@ func benchParser(b *testing.B, dir, filename string, numLines int) {
 		if s == nil {
 			b.Fatal("Stats is nil")
 		}
-		if s.Dump()["total"] != 100000.0 {
-			b.Fatalf("Total = %f; want 100000.0", s.Dump()["total"])
+		if s.Dump()["total"] != float64(numLines) {
+			b.Fatalf("Total = %f; want %f", s.Dump()["total"], float64(numLines))
 		}
 		b.StartTimer()
 	}
