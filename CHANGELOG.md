@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.4.16](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.15...v0.4.16) - 2026-08-30
+
+- feat: ベンチマークテストの追加とオプションの更新 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/92
+- fix: ベンチマークテストの対象を修正し、依存関係を更新 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/94
+
 ## [v0.4.15](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.14...v0.4.15) - 2026-08-28
 
 - fix: update ltsvparser dependency to v0.2.7 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/88
