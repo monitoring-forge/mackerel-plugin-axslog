@@ -16,7 +16,9 @@ jobs:
           go-version-file: go.mod
 
       - name: test
-        run: make check
+        run: |
+          make check
+          make bench
         env:
           CGO_ENABLED: 1
 
@@ -27,3 +29,24 @@ jobs:
           args: build --snapshot
         env:
           CGO_ENABLED: 0
+
+  test_simd:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GOAMD64: v3
+      GOEXPERIMENT: simd
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+      - name: Setup Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v4
+        with:
+          go-version: 1.27.x
+
+      - name: test simd
+        run: |
+          make check
+          make bench
+        env:
+          CGO_ENABLED: 1

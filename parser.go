@@ -52,7 +52,7 @@ func (p *parser) Parse(b []byte) error {
 	if !p.filtered(b) {
 		return nil
 	}
-	if p.opt.SkipUntilBracket {
+	if p.opt.Format == "json" && p.opt.SkipUntilBracket {
 		i := bytes.IndexByte(b, '{')
 		if i >= 0 {
 			b = b[i:]
