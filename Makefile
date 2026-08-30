@@ -21,3 +21,4 @@ lint:
 
 bench:
 	go test -bench BenchmarkParse -benchmem -run '^$$' .
+	go test -bench BenchmarkMainParse -benchmem -run '^$$' .
