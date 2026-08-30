@@ -51,7 +51,9 @@ type Opt struct {
 	SkipUntilBracket bool       `long:"skip-until-json" description:"skip reading until first { for json log with plain text header"`
 	InvertFilter     bool       `long:"invert-filter" description:"select lines don't contain a specified text from log if a filter is specified"`
 	MaxReadSize      HumanBytes `long:"max-read-size" description:"maximum size of log file to read (e.g. 10MB, 2GiB). 0 uses the default per format"`
+	Quiet            bool       `short:"q" long:"quiet" description:"Suppress output"`
 	Version          bool       `short:"v" long:"version" description:"Show version"`
+	workdir          string
 }
 
 func (opt *Opt) getFileStats(posFile, logFile string) (*axslog.Stats, error) {
@@ -72,11 +74,15 @@ func (opt *Opt) getFileStats(posFile, logFile string) (*axslog.Stats, error) {
 	}
 	maxReadSize := int64(maxReadSizeU)
 
+	if opt.workdir == "" {
+		opt.workdir = pluginutil.PluginWorkDir()
+	}
+
 	parser := opt.NewParser(stats)
 	fp := &followparser.Parser{
-		WorkDir:      pluginutil.PluginWorkDir(),
+		WorkDir:      opt.workdir,
 		Callback:     parser,
-		Silent:       false,
+		Silent:       opt.Quiet,
 		MaxReadSize:  maxReadSize,
 		StartBufSize: StartBufSize,
 		MaxBufSize:   MaxScanTokenSize,

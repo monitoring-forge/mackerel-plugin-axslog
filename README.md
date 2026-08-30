@@ -99,6 +99,7 @@ mackerel-plugin-axslog \
 | `--invert-filter` | `--filter` 指定時に、指定文字列を含まない行だけを集計 |
 | `--skip-until-json` | JSON の前にプレーンテキストの接頭辞がある行で、最初の `{` までを無視 |
 | `--max-read-size` | 1 回の実行で読む最大サイズ。`10MB`、`2GiB` のように指定。未指定時は LTSV が 1GB、JSON が 500MB |
+| `-q`, `--quiet` | 解析時のログ出力を抑制 |
 
 ## mackerel-agent での設定
 
