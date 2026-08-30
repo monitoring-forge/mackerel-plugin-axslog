@@ -24,7 +24,7 @@ jobs:
 
             - name: Run base benchmark
               run: |
-                  go test -bench BenchmarkParse -benchmem -count 10 -run '^$' . | tee /tmp/base-bench.txt
+                  go test -bench BenchmarkMainParse -benchmem -count 10 -run '^$' . | tee /tmp/base-bench.txt
 
             - name: Checkout PR branch
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
@@ -40,7 +40,7 @@ jobs:
             - name: Run PR benchmark
               run: |
                   cp /tmp/base-bench.txt ./base-bench.txt
-                  go test -bench BenchmarkParse -benchmem -count 10 -run '^$' . | tee pr-bench.txt
+                  go test -bench BenchmarkMainParse -benchmem -count 10 -run '^$' . | tee pr-bench.txt
 
             - name: Install benchstat
               run: go install golang.org/x/perf/cmd/benchstat@82a0b07e230d76fa1b3036c383d7a98172f87334
@@ -74,7 +74,7 @@ jobs:
                       PR: `${{ github.head_ref }}`
 
                       <details>
-                      <summary>BenchmarkParse results</summary>
+                      <summary>BenchmarkMainParse results</summary>
 
                       ```
                       ${{ steps.compare.outputs.BENCHSTAT_OUTPUT }}
