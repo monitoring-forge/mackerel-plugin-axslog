@@ -12,8 +12,8 @@ github.com/mackerelio/checkers v0.2.1 h1:vRXzAT+CEyaLjSrHVxKUBjyWq1kfo8QcI8ZoSKZ
 github.com/mackerelio/checkers v0.2.1/go.mod h1:CW3k/5bvHhxDrfKgWvMvNH0R51zco141ZVxlI7o/KAc=
 github.com/mackerelio/golib v1.2.2 h1:fQfW1o2KvPyIsAH/7+M2J0gpf2jLu+NyYpDCN79zxW4=
 github.com/mackerelio/golib v1.2.2/go.mod h1:itcSOfrsT5XvkzflFPebT43RrliaKDz2T6YGYt3jclw=
-github.com/monitoring-forge/flagrun v0.0.8 h1:CEoMMdFpZ4KOTiBy2mAUQtlgFsTqpvpEoLjzanDgEtw=
-github.com/monitoring-forge/flagrun v0.0.8/go.mod h1:yAwxGIEx81wU4JOMp6hz7SdSYWgT/Hr4JXEdHlEn1mw=
+github.com/monitoring-forge/flagrun v0.0.9 h1:Gir/aGej8eMic8pDrSPtRQF94SRMsVibR2HDXj1qlvo=
+github.com/monitoring-forge/flagrun v0.0.9/go.mod h1:gA9FZuDxNjkwfhcGEN/+fZy0mOPvollW2basn269F1g=
 github.com/monitoring-forge/followparser v0.2.16 h1:8mAozo1/uxHNmaR2PScCpZa+9MpujJtrK/3LyR1q7bk=
 github.com/monitoring-forge/followparser v0.2.16/go.mod h1:3ZKlSyd3PrB9HzCVC7oycfaA9p3t0O2tUEBLCmhfTUc=
 github.com/monitoring-forge/ltsvparser v0.2.8 h1:eb/lY5zFsw7RYcI8H0bZP3Jm9d9MrxRyIuwXAZlgyGk=
