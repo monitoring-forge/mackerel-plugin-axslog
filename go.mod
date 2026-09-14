@@ -18,7 +18,7 @@ require (
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/monitoring-forge/flagrun v0.0.8
+	github.com/monitoring-forge/flagrun v0.0.9
 	github.com/monitoring-forge/followparser v0.2.16
 	github.com/monitoring-forge/ltsvparser v0.2.8
 	github.com/montanaflynn/stats v0.12.5
