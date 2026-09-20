@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -36,12 +37,12 @@ func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
 		return err
 	}
 	defer file.Close()
-
+	r := rand.New(rand.NewPCG(1, 2))
 	for i := 0; i < numLines; i++ {
 		line := fmt.Sprintf(`{"time": "%s", "status": "%d", "reqtime": "%f", "host": "%s", "req": "%s", "method": "%s", "size": "%d", "ua": "%s"}`,
 			time.Now().Format(time.RFC3339),
 			200+i%5,
-			float64(i)/100.0,
+			float64(r.IntN(500))/1000,
 			"10.20.30.40",
 			"GET /example/path HTTP/1.1",
 			"GET",
@@ -65,12 +66,12 @@ func generateLTSVFile(b testing.TB, dir, filename string, numLines int) error {
 		return err
 	}
 	defer file.Close()
-
+	r := rand.New(rand.NewPCG(1, 2))
 	for i := 0; i < numLines; i++ {
 		line := fmt.Sprintf("time:%s\tstatus:%d\treqtime:%f\thost:%s\treq:%s\tmethod:%s\tsize:%d\tua:%s",
 			time.Now().Format(time.RFC3339),
 			200+i%5,
-			float64(i)/100.0,
+			float64(r.IntN(500))/1000,
 			"10.20.30.40",
 			"GET /example/path HTTP/1.1",
 			"GET",
@@ -111,21 +112,12 @@ func resetFollowParserStateFile(b testing.TB, dir, filename, posFile string) err
 	return nil
 }
 
-func benchParser(b *testing.B, dir, filename string, numLines int) {
+func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doOutput bool) {
 	b.Helper()
+	keyPrefix := "test"
 	format := "json"
 	if strings.HasSuffix(filename, ".ltsv") {
 		format = "ltsv"
-	}
-	opt := &Opt{
-		Format:     format,
-		PtimeKey:   "reqtime",
-		StatusKeys: []string{"status"},
-		Filter:     "",
-		LogFile:    fmt.Sprintf("%s/%s", dir, filename),
-		KeyPrefix:  "test",
-		Quiet:      true,
-		workdir:    dir,
 	}
 
 	if format == "json" {
@@ -143,7 +135,7 @@ func benchParser(b *testing.B, dir, filename string, numLines int) {
 	if curUser != nil {
 		uid = curUser.Uid
 	}
-	posFile := fmt.Sprintf("%s-axslog-v5-%s", uid, opt.KeyPrefix)
+	posFile := fmt.Sprintf("%s-axslog-v5-%s", uid, keyPrefix)
 	b.ResetTimer()
 	b.ReportAllocs()
 	for b.Loop() {
@@ -152,14 +144,28 @@ func benchParser(b *testing.B, dir, filename string, numLines int) {
 			b.Fatal(err)
 		}
 		b.StartTimer()
+		opt := &Opt{
+			Format:     format,
+			PtimeKey:   "reqtime",
+			StatusKeys: []string{"status"},
+			Filter:     "",
+			LogFile:    fmt.Sprintf("%s/%s", dir, filename),
+			KeyPrefix:  keyPrefix,
+			Quiet:      true,
+			workdir:    dir,
+		}
+
 		s, err := opt.getFileStats(posFile, opt.LogFile)
 		if err != nil {
 			b.Fatal(err)
 		}
-		b.StopTimer()
 		if s == nil {
 			b.Fatal("Stats is nil")
 		}
+		if doOutput {
+			_ = s.Display(keyPrefix)
+		}
+		b.StopTimer()
 		if s.Dump()["total"] != float64(numLines) {
 			b.Fatalf("Total = %f; want %f", s.Dump()["total"], float64(numLines))
 		}
@@ -172,10 +178,20 @@ func benchParser(b *testing.B, dir, filename string, numLines int) {
 // generate 100k JSONL file and parse benchmark
 func BenchmarkMainParse_jsonl(b *testing.B) {
 	tmpDir := b.TempDir()
-	benchParser(b, tmpDir, "test.jsonl", 100000)
+	benchParserAndDisplay(b, tmpDir, "test.jsonl", 100000, false)
 }
 
 func BenchmarkMainParse_ltsv(b *testing.B) {
 	tmpDir := b.TempDir()
-	benchParser(b, tmpDir, "test.ltsv", 100000)
+	benchParserAndDisplay(b, tmpDir, "test.ltsv", 100000, false)
+}
+
+func BenchmarkMainParse_jsonl_and_output(b *testing.B) {
+	tmpDir := b.TempDir()
+	benchParserAndDisplay(b, tmpDir, "test.jsonl", 100000, true)
+}
+
+func BenchmarkMainParse_ltsv_and_output(b *testing.B) {
+	tmpDir := b.TempDir()
+	benchParserAndDisplay(b, tmpDir, "test.ltsv", 100000, true)
 }
