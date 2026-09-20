@@ -112,7 +112,7 @@ func resetFollowParserStateFile(b testing.TB, dir, filename, posFile string) err
 	return nil
 }
 
-func benchParser(b *testing.B, dir, filename string, numLines int, doOutput bool) {
+func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doOutput bool) {
 	b.Helper()
 	keyPrefix := "test"
 	format := "json"
@@ -159,13 +159,13 @@ func benchParser(b *testing.B, dir, filename string, numLines int, doOutput bool
 		if err != nil {
 			b.Fatal(err)
 		}
+		if s == nil {
+			b.Fatal("Stats is nil")
+		}
 		if doOutput {
 			_ = s.Display(keyPrefix)
 		}
 		b.StopTimer()
-		if s == nil {
-			b.Fatal("Stats is nil")
-		}
 		if s.Dump()["total"] != float64(numLines) {
 			b.Fatalf("Total = %f; want %f", s.Dump()["total"], float64(numLines))
 		}
@@ -178,17 +178,17 @@ func benchParser(b *testing.B, dir, filename string, numLines int, doOutput bool
 // generate 100k JSONL file and parse benchmark
 func BenchmarkMainParse_jsonl(b *testing.B) {
 	tmpDir := b.TempDir()
-	benchParser(b, tmpDir, "test.jsonl", 100000, false)
+	benchParserAndDisplay(b, tmpDir, "test.jsonl", 100000, false)
 }
 
 func BenchmarkMainParse_ltsv(b *testing.B) {
 	tmpDir := b.TempDir()
-	benchParser(b, tmpDir, "test.ltsv", 100000, false)
+	benchParserAndDisplay(b, tmpDir, "test.ltsv", 100000, false)
 }
 
 func BenchmarkMainParse_jsonl_and_output(b *testing.B) {
 	tmpDir := b.TempDir()
-	benchParser(b, tmpDir, "test.jsonl", 100000, true)
+	benchParserAndDisplay(b, tmpDir, "test.jsonl", 100000, true)
 }
 
 func BenchmarkMainParse_ltsv_and_output(b *testing.B) {
