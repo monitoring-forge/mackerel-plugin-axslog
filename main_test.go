@@ -193,5 +193,5 @@ func BenchmarkMainParse_jsonl_and_output(b *testing.B) {
 
 func BenchmarkMainParse_ltsv_and_output(b *testing.B) {
 	tmpDir := b.TempDir()
-	benchParser(b, tmpDir, "test.ltsv", 100000, true)
+	benchParserAndDisplay(b, tmpDir, "test.ltsv", 100000, true)
 }
