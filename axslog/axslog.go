@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/montanaflynn/stats"
+	"github.com/monitoring-forge/sampdo"
 )
 
 var (
@@ -24,15 +24,15 @@ type Reader interface {
 
 // Stats :
 type Stats struct {
-	f64s     []float64
-	c1xx     float64
-	c2xx     float64
-	c3xx     float64
-	c4xx     float64
-	c499     float64
-	c5xx     float64
-	total    float64
-	duration float64
+	percentiles *sampdo.Sampdo
+	c1xx        float64
+	c2xx        float64
+	c3xx        float64
+	c4xx        float64
+	c499        float64
+	c5xx        float64
+	total       float64
+	duration    float64
 }
 
 // StatsCh :
@@ -53,9 +53,9 @@ func statusCode(status int64) int64 {
 
 // NewStats :
 func NewStats() *Stats {
-	f64s := make([]float64, 0)
+	sampdo := sampdo.New(sampdo.WithInitialCapacity(1024))
 	return &Stats{
-		f64s: f64s,
+		percentiles: sampdo,
 	}
 }
 
@@ -90,7 +90,7 @@ func (s *Stats) Append(ptime float64, status int64) {
 	}
 	s.total++
 
-	s.f64s = append(s.f64s, ptime)
+	s.percentiles.Append(ptime)
 }
 
 // SetDuration :
@@ -102,15 +102,15 @@ func (s *Stats) SetDuration(d float64) {
 func (s *Stats) Display(keyPrefix string) string {
 	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
-	// fmt.Printf("count: %d\n", len(f64s))
-	if len(s.f64s) > 0 {
-		mean, _ := stats.Mean(s.f64s)
+	sorted, _ := s.percentiles.Sorted()
+	if sorted != nil {
+		mean, _ := sorted.Mean()
 		fmt.Fprintf(&buf, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
-		p99, _ := stats.Percentile(s.f64s, 99)
+		p99, _ := sorted.Percentile(99)
 		fmt.Fprintf(&buf, "axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
-		p95, _ := stats.Percentile(s.f64s, 95)
+		p95, _ := sorted.Percentile(95)
 		fmt.Fprintf(&buf, "axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
-		p90, _ := stats.Percentile(s.f64s, 90)
+		p90, _ := sorted.Percentile(90)
 		fmt.Fprintf(&buf, "axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
 	}
 
@@ -139,7 +139,7 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
 
-	f64s := make([]float64, 0)
+	allPercentiles := sampdo.New(sampdo.WithInitialCapacity(1024))
 	c1xx := float64(0)
 	c2xx := float64(0)
 	c3xx := float64(0)
@@ -149,7 +149,7 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 	total := float64(0)
 	allDurationNG := true
 	for _, s := range statsAll {
-		f64s = append(f64s, s.f64s...)
+		s.percentiles.AppendTo(allPercentiles)
 		if s.duration > 0 {
 			allDurationNG = false
 			c1xx += s.c1xx / s.duration
@@ -162,14 +162,15 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 		}
 	}
 	// fmt.Printf("count: %d\n", len(f64s))
-	if len(f64s) > 0 {
-		mean, _ := stats.Mean(f64s)
+	sorted, _ := allPercentiles.Sorted()
+	if sorted != nil {
+		mean, _ := sorted.Mean()
 		fmt.Fprintf(&buf, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
-		p99, _ := stats.Percentile(f64s, 99)
+		p99, _ := sorted.Percentile(99)
 		fmt.Fprintf(&buf, "axslog.latency_%s.99_percentile\t%f\t%d\n", keyPrefix, p99, now)
-		p95, _ := stats.Percentile(f64s, 95)
+		p95, _ := sorted.Percentile(95)
 		fmt.Fprintf(&buf, "axslog.latency_%s.95_percentile\t%f\t%d\n", keyPrefix, p95, now)
-		p90, _ := stats.Percentile(f64s, 90)
+		p90, _ := sorted.Percentile(90)
 		fmt.Fprintf(&buf, "axslog.latency_%s.90_percentile\t%f\t%d\n", keyPrefix, p90, now)
 	}
 
