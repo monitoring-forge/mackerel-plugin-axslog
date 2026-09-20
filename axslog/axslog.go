@@ -92,6 +92,9 @@ func (s *Stats) Append(ptime float64, status int64) {
 	}
 	s.total++
 
+	if s.percentiles == nil {
+		s.percentiles = sampdo.New(sampdo.WithInitialCapacity(1024))
+	}
 	s.percentiles.Append(ptime)
 }
 
@@ -101,6 +104,9 @@ func (s *Stats) SetDuration(d float64) {
 }
 
 func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string, now uint64) error {
+	if percentile == nil || percentile.Count() == 0 {
+		return nil
+	}
 	sorted, err := percentile.Sorted()
 	if err != nil {
 		return fmt.Errorf("error sorting percentiles: %v", err)
@@ -165,7 +171,9 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 	total := float64(0)
 	allDurationNG := true
 	for _, s := range statsAll {
-		s.percentiles.AppendTo(allPercentiles)
+		if s.percentiles != nil {
+			s.percentiles.AppendTo(allPercentiles)
+		}
 		if s.duration > 0 {
 			allDurationNG = false
 			c1xx += s.c1xx / s.duration
