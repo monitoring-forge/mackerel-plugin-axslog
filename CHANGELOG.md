@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.4.17](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.16...v0.4.17) - 2026-09-20
+
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/96
+- ci: bump the dependencies group across 1 directory with 2 updates by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/99
+- go: bump golang.org/x/sys from 0.47.0 to 0.48.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/100
+- go: bump github.com/monitoring-forge/flagrun from 0.0.8 to 0.0.9 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/101
+- ci: bump Songmu/tagpr from 1.20.2 to 1.20.3 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/102
+- benchmark parse and output by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/103
+- use sampdo percentiles by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/104
+
 ## [v0.4.16](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.15...v0.4.16) - 2026-08-30
 
 - feat: ベンチマークテストの追加とオプションの更新 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/92
