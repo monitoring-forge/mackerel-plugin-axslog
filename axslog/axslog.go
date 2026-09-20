@@ -3,6 +3,7 @@ package axslog
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -99,24 +100,34 @@ func (s *Stats) SetDuration(d float64) {
 	s.duration = d
 }
 
-// Display :
-func (s *Stats) Display(keyPrefix string) string {
-	var buf bytes.Buffer
-	now := uint64(time.Now().Unix())
-	sorted, err := s.percentiles.Sorted()
+func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string, now uint64) error {
+	sorted, err := percentile.Sorted()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error sorting percentiles: %v\n", err)
-	} else if sorted != nil {
+		return fmt.Errorf("error sorting percentiles: %v", err)
+	}
+	if sorted != nil {
 		mean, _ := sorted.Mean()
-		fmt.Fprintf(&buf, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
+		fmt.Fprintf(w, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
 		for _, p := range []int{90, 95, 99} {
 			pValue, err := sorted.Percentile(float64(p))
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error getting percentile %d: %v\n", p, err)
 			} else {
-				fmt.Fprintf(&buf, "axslog.latency_%s.%d_percentile\t%f\t%d\n", keyPrefix, p, pValue, now)
+				fmt.Fprintf(w, "axslog.latency_%s.%d_percentile\t%f\t%d\n", keyPrefix, p, pValue, now)
 			}
 		}
+	}
+	return nil
+}
+
+// Display :
+func (s *Stats) Display(keyPrefix string) string {
+	var buf bytes.Buffer
+	now := uint64(time.Now().Unix())
+
+	err := displayPercentiles(&buf, s.percentiles, keyPrefix, now)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error displaying percentiles: %v\n", err)
 	}
 
 	if s.duration > 0 {
@@ -166,22 +177,10 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 			total += s.total / s.duration
 		}
 	}
-	// fmt.Printf("count: %d\n", len(f64s))
-	sorted, err := allPercentiles.Sorted()
 
+	err := displayPercentiles(&buf, allPercentiles, keyPrefix, now)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error sorting all percentiles: %v\n", err)
-	} else if sorted != nil {
-		mean, _ := sorted.Mean()
-		fmt.Fprintf(&buf, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
-		for _, p := range []int{90, 95, 99} {
-			pValue, err := sorted.Percentile(float64(p))
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error getting all percentile %d: %v\n", p, err)
-			} else {
-				fmt.Fprintf(&buf, "axslog.latency_%s.%d_percentile\t%f\t%d\n", keyPrefix, p, pValue, now)
-			}
-		}
+		fmt.Fprintf(os.Stderr, "error displaying all percentiles: %v\n", err)
 	}
 
 	if !allDurationNG {
