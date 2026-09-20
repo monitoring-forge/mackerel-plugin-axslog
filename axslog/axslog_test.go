@@ -30,8 +30,8 @@ func TestStatusCode(t *testing.T) {
 func TestNewStats(t *testing.T) {
 	s := NewStats()
 	require.NotNil(t, s, "NewStats() returned nil")
-	require.NotNil(t, s.f64s, "f64s slice is nil")
-	require.Equal(t, 0, len(s.f64s), "f64s length = %d; want 0", len(s.f64s))
+	require.NotNil(t, s.percentiles, "percentiles is nil")
+	require.Equal(t, 0, s.percentiles.Count(), "percentiles count = %d; want 0", s.percentiles.Count())
 }
 
 func TestStatsAppendAndTotal(t *testing.T) {
@@ -47,7 +47,7 @@ func TestStatsAppendAndTotal(t *testing.T) {
 	assert.Equal(t, 1.0, s.c4xx, "C4xx = %f; want 1", s.c4xx)
 	assert.Equal(t, 1.0, s.c499, "C499 = %f; want 1", s.c499)
 	assert.Equal(t, 1.0, s.c5xx, "C5xx = %f; want 1", s.c5xx)
-	assert.Equal(t, 5, len(s.f64s), "len(f64s) = %d; want 5", len(s.f64s))
+	assert.Equal(t, 5, s.percentiles.Count(), "percentiles count = %d; want 5", s.percentiles.Count())
 }
 
 func TestStatsSetDuration(t *testing.T) {
@@ -64,6 +64,8 @@ func TestDisplay(t *testing.T) {
 	s.Append(0.020, 200)
 	s.Append(0.100, 500)
 	s.SetDuration(60.0)
+
+	require.Equal(t, 3, s.percentiles.Count(), "percentiles count = %d; want 3", s.percentiles.Count())
 
 	output := s.Display("test")
 	assert.Contains(t, output, "axslog.latency_test.average")
