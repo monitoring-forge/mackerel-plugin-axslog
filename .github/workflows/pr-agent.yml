@@ -15,7 +15,7 @@ jobs:
         if: ${{ github.event.sender.type != 'Bot' }}
         steps:
             - name: PR Agent action step
-              uses: the-pr-agent/pr-agent@4ebd5c5333c6ef21509e7304d27969eb825e6f22 # v0.43.0
+              uses: the-pr-agent/pr-agent@f3b385ea2927247ddcff2fe252472380b9c8f5fc # v0.45.0
               env:
                   OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
@@ -25,8 +25,8 @@ jobs:
                   github_action_config.auto_describe: "true"
                   github_action_config.auto_improve: "true"
                   github_action_config.pr_actions: '["opened", "reopened", "ready_for_review", "synchronize"]'
-                  config.model: "openrouter/openai/gpt-5.6-terra"
-                  config.fallback_models: '["openrouter/openai/gpt-5.6-luna"]'
+                  config.model: "openrouter/openai/gpt-6-sol"
+                  config.fallback_models: '["openrouter/openai/gpt-5.6-terra"]'
                   config.custom_model_max_tokens: 256000
                   config.max_model_tokens: 120000
                   config.temperature: "0"
