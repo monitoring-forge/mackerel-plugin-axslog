@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.4.18](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.17...v0.4.18) - 2026-09-26
+
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/105
+- update sampdo by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/107
+- update mod by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/108
+
 ## [v0.4.17](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.16...v0.4.17) - 2026-09-20
 
 - Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/96
