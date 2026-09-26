@@ -8,7 +8,7 @@ require (
 	github.com/mackerelio/golib v1.2.2
 	github.com/monitoring-forge/flagrun v0.0.10
 	github.com/monitoring-forge/followparser v0.2.16
-	github.com/monitoring-forge/ltsvparser v0.2.8
+	github.com/monitoring-forge/ltsvparser v0.2.9
 	github.com/monitoring-forge/sampdo v0.0.3
 	github.com/stretchr/testify v1.12.1
 )
