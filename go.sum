@@ -16,8 +16,8 @@ github.com/monitoring-forge/flagrun v0.0.10 h1:KybhBetKlDxuIBj/rilKQWE60fynVzReK
 github.com/monitoring-forge/flagrun v0.0.10/go.mod h1:hxpSc4cgzDMi6lj40T97GNO/PglgM5FW79fRGdzexBY=
 github.com/monitoring-forge/followparser v0.2.16 h1:8mAozo1/uxHNmaR2PScCpZa+9MpujJtrK/3LyR1q7bk=
 github.com/monitoring-forge/followparser v0.2.16/go.mod h1:3ZKlSyd3PrB9HzCVC7oycfaA9p3t0O2tUEBLCmhfTUc=
-github.com/monitoring-forge/ltsvparser v0.2.8 h1:eb/lY5zFsw7RYcI8H0bZP3Jm9d9MrxRyIuwXAZlgyGk=
-github.com/monitoring-forge/ltsvparser v0.2.8/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
+github.com/monitoring-forge/ltsvparser v0.2.9 h1:wvIM67xmZBDNIcLAR0J05+rAt3lia2eQ8jtW2ci8Hvs=
+github.com/monitoring-forge/ltsvparser v0.2.9/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
 github.com/monitoring-forge/saferio v0.0.3 h1:1i3va3QQ9QPunwsgekDzC8RV91KT1Xcb++Z0Dnl9zFY=
 github.com/monitoring-forge/saferio v0.0.3/go.mod h1:1o6nyDJ4isee9VH3eUx5uw4C7LEgPFsq7M3tO+VMyvM=
 github.com/monitoring-forge/sampdo v0.0.3 h1:G9BK4U0EgTrc8Y6yXS1REN6CRiTtNrDcIcb6R1Wubiw=

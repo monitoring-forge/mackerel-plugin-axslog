@@ -39,7 +39,7 @@ func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
 	defer file.Close()
 	r := rand.New(rand.NewPCG(1, 2))
 	for i := 0; i < numLines; i++ {
-		line := fmt.Sprintf(`{"time": "%s", "status": "%d", "reqtime": "%f", "host": "%s", "req": "%s", "method": "%s", "size": "%d", "ua": "%s"}`,
+		line := fmt.Sprintf(`{"time": "%s", "status": "%d", "reqtime": "%.3f", "host": "%s", "req": "%s", "method": "%s", "size": "%d", "ua": "%s"}`,
 			time.Now().Format(time.RFC3339),
 			200+i%5,
 			float64(r.IntN(500))/1000,
@@ -68,7 +68,7 @@ func generateLTSVFile(b testing.TB, dir, filename string, numLines int) error {
 	defer file.Close()
 	r := rand.New(rand.NewPCG(1, 2))
 	for i := 0; i < numLines; i++ {
-		line := fmt.Sprintf("time:%s\tstatus:%d\treqtime:%f\thost:%s\treq:%s\tmethod:%s\tsize:%d\tua:%s",
+		line := fmt.Sprintf("time:%s\tstatus:%d\treqtime:%.3f\thost:%s\treq:%s\tmethod:%s\tsize:%d\tua:%s",
 			time.Now().Format(time.RFC3339),
 			200+i%5,
 			float64(r.IntN(500))/1000,
