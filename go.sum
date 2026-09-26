@@ -20,10 +20,8 @@ github.com/monitoring-forge/ltsvparser v0.2.8 h1:eb/lY5zFsw7RYcI8H0bZP3Jm9d9MrxR
 github.com/monitoring-forge/ltsvparser v0.2.8/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
 github.com/monitoring-forge/saferio v0.0.3 h1:1i3va3QQ9QPunwsgekDzC8RV91KT1Xcb++Z0Dnl9zFY=
 github.com/monitoring-forge/saferio v0.0.3/go.mod h1:1o6nyDJ4isee9VH3eUx5uw4C7LEgPFsq7M3tO+VMyvM=
-github.com/monitoring-forge/sampdo v0.0.1 h1:azWEMCpj74qHD8WPwFMMz9iAG7kAQ2oJkFlGRoarFZE=
-github.com/monitoring-forge/sampdo v0.0.1/go.mod h1:HrklVUhA6bhegmUoZnH9X3Kovpe7/KE5x5TSr0Sdtew=
-github.com/monitoring-forge/sampdo v0.0.2 h1:3YeZ6ocr0rvhFFUoA0kd1+Bje9SfihnMe5UcvbeyxPI=
-github.com/monitoring-forge/sampdo v0.0.2/go.mod h1:HrklVUhA6bhegmUoZnH9X3Kovpe7/KE5x5TSr0Sdtew=
+github.com/monitoring-forge/sampdo v0.0.3 h1:G9BK4U0EgTrc8Y6yXS1REN6CRiTtNrDcIcb6R1Wubiw=
+github.com/monitoring-forge/sampdo v0.0.3/go.mod h1:HrklVUhA6bhegmUoZnH9X3Kovpe7/KE5x5TSr0Sdtew=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
