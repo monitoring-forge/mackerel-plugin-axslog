@@ -85,6 +85,9 @@ func (p *parser) Finish(duration float64) {
 }
 
 func validateStatusCode(st []byte) bool {
+	if len(st) == 1 && st[0] == '0' {
+		return true
+	}
 	if len(st) != 3 ||
 		st[0] < '0' || st[0] > '9' ||
 		st[1] < '0' || st[1] > '9' ||
