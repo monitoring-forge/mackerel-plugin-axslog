@@ -71,6 +71,10 @@ func (p *parser) Parse(b []byte) error {
 		log.Printf("Failed to convert ptime. continue: %v", err)
 		return nil
 	}
+	if !validateStatusCode(st) {
+		log.Printf("Invalid status code. continue: %q", st)
+		return nil
+	}
 
 	p.stats.Append(ptime, st)
 	return nil
@@ -78,4 +82,14 @@ func (p *parser) Parse(b []byte) error {
 
 func (p *parser) Finish(duration float64) {
 	p.stats.SetDuration(duration)
+}
+
+func validateStatusCode(st []byte) bool {
+	if len(st) != 3 ||
+		st[0] < '0' || st[0] > '9' ||
+		st[1] < '0' || st[1] > '9' ||
+		st[2] < '0' || st[2] > '9' {
+		return false
+	}
+	return true
 }

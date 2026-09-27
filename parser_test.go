@@ -57,6 +57,29 @@ func TestParse(t *testing.T) {
 	}
 }
 
+func TestValidateStatusCode(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []byte
+		expected bool
+	}{
+		{"Valid status code", []byte("200"), true},
+		{"Valid status code 499", []byte("499"), true},
+		{"Invalid status code - too short", []byte("20"), false},
+		{"Invalid status code - non-numeric", []byte("2a0"), false},
+		{"Invalid status code - too long", []byte("2000"), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := validateStatusCode(tt.input)
+			if result != tt.expected {
+				t.Errorf("validateStatusCode() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
+
 func BenchmarkParse_LTSVParse(b *testing.B) {
 	opt := &Opt{
 		Format:     "ltsv",

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"os"
+	"log"
 	"time"
 
 	"github.com/monitoring-forge/sampdo"
@@ -89,7 +89,10 @@ func (s *Stats) Append(ptime float64, status []byte) {
 	if s.percentiles == nil {
 		s.percentiles = sampdo.New(sampdo.WithInitialCapacity(1024))
 	}
-	s.percentiles.Append(ptime)
+	err := s.percentiles.Append(ptime)
+	if err != nil {
+		log.Printf("error appending percentile: %v\n", err)
+	}
 }
 
 // SetDuration :
@@ -103,7 +106,7 @@ func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string
 	}
 	sorted, err := percentile.Sorted()
 	if err != nil {
-		return fmt.Errorf("error sorting percentiles: %v", err)
+		return fmt.Errorf("error sorting percentiles: %w", err)
 	}
 	if sorted != nil {
 		mean, _ := sorted.Mean()
@@ -111,7 +114,7 @@ func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string
 		for _, p := range []int{90, 95, 99} {
 			pValue, err := sorted.Percentile(float64(p))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error getting percentile %d: %v\n", p, err)
+				log.Printf("error getting percentile %d: %v\n", p, err)
 			} else {
 				fmt.Fprintf(w, "axslog.latency_%s.%d_percentile\t%f\t%d\n", keyPrefix, p, pValue, now)
 			}
@@ -127,7 +130,7 @@ func (s *Stats) Display(keyPrefix string) string {
 
 	err := displayPercentiles(&buf, s.percentiles, keyPrefix, now)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error displaying percentiles: %v\n", err)
+		log.Printf("error displaying percentiles: %v\n", err)
 	}
 
 	if s.duration > 0 {
@@ -166,7 +169,9 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 	allDurationNG := true
 	for _, s := range statsAll {
 		if s.percentiles != nil {
-			s.percentiles.AppendTo(allPercentiles)
+			if err := s.percentiles.AppendTo(allPercentiles); err != nil {
+				log.Printf("error appending to all percentiles: %v\n", err)
+			}
 		}
 		if s.duration > 0 {
 			allDurationNG = false
@@ -182,7 +187,7 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 
 	err := displayPercentiles(&buf, allPercentiles, keyPrefix, now)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error displaying all percentiles: %v\n", err)
+		log.Printf("error displaying all percentiles: %v\n", err)
 	}
 
 	if !allDurationNG {
