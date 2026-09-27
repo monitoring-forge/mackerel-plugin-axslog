@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestHumanBytesUnmarshalFlag(t *testing.T) {
@@ -29,17 +31,26 @@ func TestHumanBytesUnmarshalFlagInvalid(t *testing.T) {
 	}
 }
 
-func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
+func generateFile(b testing.TB, dir, filename string, numLines int, format string) {
 	b.Helper()
+	var template string
+	switch format {
+	case "json":
+		template = `{"time": "%s", "status": "%d", "reqtime": "%.3f", "host": "%s", "req": "%s", "method": "%s", "size": "%d", "ua": "%s"}`
+	case "ltsv":
+		template = "time:%s\tstatus:%d\treqtime:%.3f\thost:%s\treq:%s\tmethod:%s\tsize:%d\tua:%s"
+	default:
+		b.Fatalf("unsupported format: %s", format)
+	}
 	filepath := fmt.Sprintf("%s/%s", dir, filename)
 	file, err := os.Create(filepath)
 	if err != nil {
-		return err
+		b.Fatalf("error creating file: %v", err)
 	}
 	defer file.Close()
 	r := rand.New(rand.NewPCG(1, 2))
-	for i := 0; i < numLines; i++ {
-		line := fmt.Sprintf(`{"time": "%s", "status": "%d", "reqtime": "%.3f", "host": "%s", "req": "%s", "method": "%s", "size": "%d", "ua": "%s"}`,
+	for i := range numLines {
+		line := fmt.Sprintf(template,
 			time.Now().Format(time.RFC3339),
 			200+i%5,
 			float64(r.IntN(500))/1000,
@@ -51,40 +62,19 @@ func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
 		)
 		_, err := file.WriteString(line + "\n")
 		if err != nil {
-			return err
+			b.Fatalf("error writing to file: %v", err)
 		}
 	}
-
-	return nil
 }
 
-func generateLTSVFile(b testing.TB, dir, filename string, numLines int) error {
+func generateJSONLFile(b testing.TB, dir, filename string, numLines int) {
 	b.Helper()
-	filepath := fmt.Sprintf("%s/%s", dir, filename)
-	file, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	r := rand.New(rand.NewPCG(1, 2))
-	for i := 0; i < numLines; i++ {
-		line := fmt.Sprintf("time:%s\tstatus:%d\treqtime:%.3f\thost:%s\treq:%s\tmethod:%s\tsize:%d\tua:%s",
-			time.Now().Format(time.RFC3339),
-			200+i%5,
-			float64(r.IntN(500))/1000,
-			"10.20.30.40",
-			"GET /example/path HTTP/1.1",
-			"GET",
-			941,
-			"Mozilla/5.0 (Linux; Android 4.4.2; SO-01F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Mobile Safari/537.36",
-		)
-		_, err := file.WriteString(line + "\n")
-		if err != nil {
-			return err
-		}
-	}
+	generateFile(b, dir, filename, numLines, "json")
+}
 
-	return nil
+func generateLTSVFile(b testing.TB, dir, filename string, numLines int) {
+	b.Helper()
+	generateFile(b, dir, filename, numLines, "ltsv")
 }
 
 func resetFollowParserStateFile(b testing.TB, dir, filename, posFile string) error {
@@ -104,7 +94,7 @@ func resetFollowParserStateFile(b testing.TB, dir, filename, posFile string) err
 	inode := stats.Sys().(*syscall.Stat_t).Ino
 	dev := stats.Sys().(*syscall.Stat_t).Dev
 
-	_, err = stateFile.WriteString(fmt.Sprintf(`{"pos": %d, "time": %f, "inode": %d, "dev": %d}`, 0, float64(time.Now().Unix()-10), inode, dev))
+	_, err = fmt.Fprintf(stateFile, `{"pos": %d, "time": %f, "inode": %d, "dev": %d}`, 0, float64(time.Now().Unix()-10), inode, dev)
 	if err != nil {
 		return err
 	}
@@ -120,14 +110,11 @@ func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doO
 		format = "ltsv"
 	}
 
-	if format == "json" {
-		if err := generateJSONLFile(b, dir, filename, numLines); err != nil {
-			b.Fatal(err)
-		}
-	} else if format == "ltsv" {
-		if err := generateLTSVFile(b, dir, filename, numLines); err != nil {
-			b.Fatal(err)
-		}
+	switch format {
+	case "json":
+		generateJSONLFile(b, dir, filename, numLines)
+	case "ltsv":
+		generateLTSVFile(b, dir, filename, numLines)
 	}
 
 	curUser, _ := user.Current()
@@ -140,9 +127,7 @@ func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doO
 	b.ReportAllocs()
 	for b.Loop() {
 		b.StopTimer()
-		if err := resetFollowParserStateFile(b, dir, filename, posFile); err != nil {
-			b.Fatal(err)
-		}
+		require.NoError(b, resetFollowParserStateFile(b, dir, filename, posFile))
 		b.StartTimer()
 		opt := &Opt{
 			Format:     format,
@@ -156,23 +141,16 @@ func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doO
 		}
 
 		s, err := opt.getFileStats(posFile, opt.LogFile)
-		if err != nil {
-			b.Fatal(err)
-		}
-		if s == nil {
-			b.Fatal("Stats is nil")
-		}
+		require.NoError(b, err)
+		require.NotNil(b, s)
+
 		if doOutput {
 			_ = s.Display(keyPrefix)
 		}
 		b.StopTimer()
-		if s.Dump()["total"] != float64(numLines) {
-			b.Fatalf("Total = %f; want %f", s.Dump()["total"], float64(numLines))
-		}
+		require.Equal(b, float64(numLines), s.Dump()["total"])
 		b.StartTimer()
 	}
-
-	return
 }
 
 // generate 100k JSONL file and parse benchmark

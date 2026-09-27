@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/buger/jsonparser"
 	"github.com/monitoring-forge/ltsvparser"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/jsonreader"
@@ -72,15 +71,28 @@ func (p *parser) Parse(b []byte) error {
 		log.Printf("Failed to convert ptime. continue: %v", err)
 		return nil
 	}
-	status, err := jsonparser.ParseInt(st)
-	if err != nil {
-		log.Printf("Failed to convert status. continue: %v", err)
+	if !validateStatusCode(st) {
+		log.Printf("Invalid status code. continue: %q", st)
 		return nil
 	}
-	p.stats.Append(ptime, status)
+
+	p.stats.Append(ptime, st)
 	return nil
 }
 
 func (p *parser) Finish(duration float64) {
 	p.stats.SetDuration(duration)
+}
+
+func validateStatusCode(st []byte) bool {
+	if len(st) == 1 && st[0] == '0' {
+		return true
+	}
+	if len(st) != 3 ||
+		st[0] < '0' || st[0] > '9' ||
+		st[1] < '0' || st[1] > '9' ||
+		st[2] < '0' || st[2] > '9' {
+		return false
+	}
+	return true
 }

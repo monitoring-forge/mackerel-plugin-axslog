@@ -8,25 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStatusCode(t *testing.T) {
-	tests := []struct {
-		status   int64
-		expected int64
-	}{
-		{200, 2},
-		{301, 3},
-		{404, 4},
-		{499, 499},
-		{500, 5},
-		{100, 1},
-	}
-	for _, tt := range tests {
-		if got := statusCode(tt.status); got != tt.expected {
-			t.Errorf("statusCode(%d) = %d; want %d", tt.status, got, tt.expected)
-		}
-	}
-}
-
 func TestNewStats(t *testing.T) {
 	s := NewStats()
 	require.NotNil(t, s, "NewStats() returned nil")
@@ -36,11 +17,11 @@ func TestNewStats(t *testing.T) {
 
 func TestStatsAppendAndTotal(t *testing.T) {
 	s := NewStats()
-	s.Append(0.010, 200)
-	s.Append(0.020, 200)
-	s.Append(0.030, 404)
-	s.Append(0.040, 499)
-	s.Append(0.050, 500)
+	s.Append(0.010, []byte("200"))
+	s.Append(0.020, []byte("200"))
+	s.Append(0.030, []byte("404"))
+	s.Append(0.040, []byte("499"))
+	s.Append(0.050, []byte("500"))
 
 	assert.Equal(t, 5.0, s.total, "Total = %f; want 5", s.total)
 	assert.Equal(t, 2.0, s.c2xx, "C2xx = %f; want 2", s.c2xx)
@@ -60,9 +41,9 @@ func TestStatsSetDuration(t *testing.T) {
 
 func TestDisplay(t *testing.T) {
 	s := NewStats()
-	s.Append(0.010, 200)
-	s.Append(0.020, 200)
-	s.Append(0.100, 500)
+	s.Append(0.010, []byte("200"))
+	s.Append(0.020, []byte("200"))
+	s.Append(0.100, []byte("500"))
 	s.SetDuration(60.0)
 
 	require.Equal(t, 3, s.percentiles.Count(), "percentiles count = %d; want 3", s.percentiles.Count())
@@ -84,11 +65,11 @@ func TestDisplayNoData(t *testing.T) {
 
 func TestDisplayAll(t *testing.T) {
 	s1 := NewStats()
-	s1.Append(0.010, 200)
+	s1.Append(0.010, []byte("200"))
 	s1.SetDuration(60.0)
 
 	s2 := NewStats()
-	s2.Append(0.020, 404)
+	s2.Append(0.020, []byte("404"))
 	s2.SetDuration(60.0)
 
 	output := DisplayAll([]*Stats{s1, s2}, "all")
@@ -99,7 +80,7 @@ func TestDisplayAll(t *testing.T) {
 
 func TestDisplayAllNoDuration(t *testing.T) {
 	s := NewStats()
-	s.Append(0.010, 200)
+	s.Append(0.010, []byte("200"))
 
 	output := DisplayAll([]*Stats{s}, "noduration")
 	if strings.Contains(output, "axslog.access_num_") {
@@ -121,12 +102,12 @@ func TestFlags(t *testing.T) {
 
 func TestStatsAppendAllStatusClasses(t *testing.T) {
 	s := NewStats()
-	s.Append(0.001, 100)
-	s.Append(0.002, 200)
-	s.Append(0.003, 301)
-	s.Append(0.004, 404)
-	s.Append(0.005, 499)
-	s.Append(0.006, 503)
+	s.Append(0.001, []byte("100"))
+	s.Append(0.002, []byte("200"))
+	s.Append(0.003, []byte("301"))
+	s.Append(0.004, []byte("404"))
+	s.Append(0.005, []byte("499"))
+	s.Append(0.006, []byte("503"))
 
 	assert.Equal(t, 6.0, s.total, "Total = %f; want 6", s.total)
 	assert.Equal(t, 1.0, s.c1xx, "C1xx = %f; want 1", s.c1xx)
@@ -139,7 +120,7 @@ func TestStatsAppendAllStatusClasses(t *testing.T) {
 
 func TestDisplayAllAggregatedPercentages(t *testing.T) {
 	s1 := NewStats()
-	s1.Append(0.010, 200)
+	s1.Append(0.010, []byte("200"))
 	s1.SetDuration(60.0)
 
 	output := DisplayAll([]*Stats{s1}, "single")
