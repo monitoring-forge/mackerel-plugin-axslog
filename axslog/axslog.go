@@ -44,15 +44,6 @@ type StatsCh struct {
 	Err     error
 }
 
-func statusCode(status int64) int64 {
-	switch status {
-	case 499:
-		return 499
-	default:
-		return status / 100
-	}
-}
-
 // NewStats :
 func NewStats() *Stats {
 	sampdo := sampdo.New(sampdo.WithInitialCapacity(1024))
@@ -74,22 +65,25 @@ func (s *Stats) Dump() map[string]float64 {
 	}
 }
 
-// Append :
-func (s *Stats) Append(ptime float64, status int64) {
-	switch statusCode(status) {
-	case 2:
-		s.c2xx++
-	case 3:
-		s.c3xx++
-	case 4:
-		s.c4xx++
-	case 5:
-		s.c5xx++
-	case 499:
+// Append adds a new request's processing time and status code to the statistics.
+func (s *Stats) Append(ptime float64, status []byte) {
+	if bytes.Equal(status, []byte("499")) {
 		s.c499++
-	case 1:
-		s.c1xx++
+	} else if len(status) > 0 {
+		switch status[0] {
+		case '1':
+			s.c1xx++
+		case '2':
+			s.c2xx++
+		case '3':
+			s.c3xx++
+		case '4':
+			s.c4xx++
+		case '5':
+			s.c5xx++
+		}
 	}
+
 	s.total++
 
 	if s.percentiles == nil {

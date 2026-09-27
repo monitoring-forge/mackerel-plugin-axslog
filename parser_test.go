@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 
-	"github.com/buger/jsonparser"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
@@ -58,35 +57,6 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestParseInt(t *testing.T) {
-	tests := []struct {
-		input    []byte
-		expected int64
-		hasError bool
-	}{
-		{[]byte("123"), 123, false},
-		{[]byte("045"), 45, false},
-		{[]byte("999"), 999, false},
-		{[]byte("12"), 12, false},
-		{[]byte("7"), 7, false},
-		{[]byte("000"), 0, false},
-		{[]byte("001"), 1, false},
-		{[]byte("e00"), 0, true},
-		{[]byte("12a"), 0, true},
-		{[]byte("abc"), 0, true},
-	}
-
-	for _, tt := range tests {
-		result, err := parseInt(tt.input)
-		if (err != nil) != tt.hasError {
-			t.Errorf("parseInt(%s) error = %v, wantErr %v", tt.input, err, tt.hasError)
-		}
-		if result != tt.expected {
-			t.Errorf("parseInt(%s) = %d, want %d", tt.input, result, tt.expected)
-		}
-	}
-}
-
 func BenchmarkParse_LTSVParse(b *testing.B) {
 	opt := &Opt{
 		Format:     "ltsv",
@@ -120,23 +90,5 @@ func BenchmarkParse_JSONParse(b *testing.B) {
 	b.ReportAllocs()
 	for b.Loop() {
 		_ = p.Parse(data)
-	}
-}
-
-func BenchmarkParseInt_parseInt(b *testing.B) {
-	input := []byte("123")
-	b.ReportAllocs()
-	b.ResetTimer()
-	for b.Loop() {
-		_, _ = parseInt(input)
-	}
-}
-
-func BenchmarkParseInt_jsonparser(b *testing.B) {
-	input := []byte("123")
-	b.ReportAllocs()
-	b.ResetTimer()
-	for b.Loop() {
-		_, _ = jsonparser.ParseInt(input)
 	}
 }

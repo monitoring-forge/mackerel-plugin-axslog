@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"log"
 
-	"github.com/buger/jsonparser"
 	"github.com/monitoring-forge/ltsvparser"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/jsonreader"
@@ -72,28 +71,11 @@ func (p *parser) Parse(b []byte) error {
 		log.Printf("Failed to convert ptime. continue: %v", err)
 		return nil
 	}
-	status, err := parseInt(st)
-	if err != nil {
-		log.Printf("Failed to convert status. continue: %v", err)
-		return nil
-	}
-	p.stats.Append(ptime, status)
+
+	p.stats.Append(ptime, st)
 	return nil
 }
 
 func (p *parser) Finish(duration float64) {
 	p.stats.SetDuration(duration)
-}
-
-// parseInt efficently parses a 3-digit number from a byte slice,
-// falling back to jsonparser.ParseInt for other cases.
-func parseInt(i []byte) (int64, error) {
-	if len(i) == 3 {
-		a, b, c := i[0]-'0', i[1]-'0', i[2]-'0'
-		if a >= 0 && a <= 9 && b >= 0 && b <= 9 && c >= 0 && c <= 9 {
-			n := int64(a)*100 + int64(b)*10 + int64(c)
-			return n, nil
-		}
-	}
-	return jsonparser.ParseInt(i)
 }
