@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.4.19](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.18...v0.4.19) - 2026-10-03
+
+- feat: add support for custom percentiles in axslog plugin by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/110
+
 ## [v0.4.18](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.17...v0.4.18) - 2026-09-27
 
 - Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/105
