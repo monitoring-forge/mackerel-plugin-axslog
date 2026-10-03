@@ -50,10 +50,12 @@ type Opt struct {
 	Filter           string     `long:"filter" default:"" description:"select lines contain a specified text from log"`
 	SkipUntilBracket bool       `long:"skip-until-json" description:"skip reading until first { for json log with plain text header"`
 	InvertFilter     bool       `long:"invert-filter" description:"select lines don't contain a specified text from log if a filter is specified"`
+	Percentiles      string     `long:"percentiles" default:"50,90,99" description:"comma-separated list of percentiles to calculate"`
 	MaxReadSize      HumanBytes `long:"max-read-size" description:"maximum size of log file to read (e.g. 10MB, 2GiB). 0 uses the default per format"`
 	Quiet            bool       `short:"q" long:"quiet" description:"Suppress output"`
 	Version          bool       `short:"v" long:"version" description:"Show version"`
 	workdir          string
+	percentiles      []axslog.PercentileTarget
 }
 
 func (opt *Opt) getFileStats(posFile, logFile string) (*axslog.Stats, error) {
@@ -107,7 +109,7 @@ func (opt *Opt) getStats() error {
 		if err != nil {
 			return err
 		}
-		out := stats.Display(opt.KeyPrefix)
+		out := stats.Display(opt.percentiles, opt.KeyPrefix)
 		_, printErr := fmt.Print(out)
 		return printErr
 	}
@@ -143,7 +145,7 @@ func (opt *Opt) getStats() error {
 		}
 	}
 
-	out := axslog.DisplayAll(statsAll, opt.KeyPrefix)
+	out := axslog.DisplayAll(statsAll, opt.percentiles, opt.KeyPrefix)
 	_, printErr := fmt.Print(out)
 	return printErr
 }
@@ -156,6 +158,18 @@ func (opt *Opt) Run(_ []string) (any, int) {
 	return "", flagrun.OK
 }
 
+func (opt *Opt) validate(_ []string) error {
+	if opt.Percentiles != "" {
+		targets, err := axslog.PercentileTargetsFromString(opt.Percentiles)
+		if err != nil {
+			return err
+		}
+		opt.percentiles = targets
+	}
+	return nil
+}
+
 func main() {
-	os.Exit(flagrun.Go(&Opt{}, flagrun.Version(version)))
+	opt := &Opt{}
+	os.Exit(flagrun.Go(opt, flagrun.Version(version), flagrun.Validator(opt.validate)))
 }
