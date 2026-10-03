@@ -25,14 +25,21 @@ func PercentileTargetFromString(p string) (PercentileTarget, error) {
 }
 
 func PercentileTargetsFromString(s string) ([]PercentileTarget, error) {
+	if s == "" {
+		return nil, fmt.Errorf("percentiles string must not be empty")
+	}
 	var targets []PercentileTarget
 	parts := strings.Split(s, ",")
+	seen := make(map[string]struct{})
 	for _, p := range parts {
 		target, err := PercentileTargetFromString(p)
 		if err != nil {
 			return nil, err
 		}
-		targets = append(targets, target)
+		if _, exists := seen[target.Name]; !exists {
+			targets = append(targets, target)
+			seen[target.Name] = struct{}{}
+		}
 	}
 	return targets, nil
 }

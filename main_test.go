@@ -32,6 +32,22 @@ func TestHumanBytesUnmarshalFlagInvalid(t *testing.T) {
 	}
 }
 
+func TestValidate(t *testing.T) {
+	opt := &Opt{
+		Percentiles: "50,90,99",
+	}
+	err := opt.validate(nil)
+	require.NoError(t, err)
+}
+
+func TestValidateInvalid(t *testing.T) {
+	opt := &Opt{
+		Percentiles: "",
+	}
+	err := opt.validate(nil)
+	require.Error(t, err)
+}
+
 func generateFile(b testing.TB, dir, filename string, numLines int, format string) {
 	b.Helper()
 	var template string

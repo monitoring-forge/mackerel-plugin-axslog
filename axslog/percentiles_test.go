@@ -53,8 +53,14 @@ func TestPercentileTargetsFromString(t *testing.T) {
 			{Name: "99_9_percentile", Value: 99.9},
 			{Name: "100_percentile", Value: 100.0},
 		}, false},
+		{"50,50,90", []PercentileTarget{
+			{Name: "50_percentile", Value: 50.0},
+			{Name: "90_percentile", Value: 90.0},
+		}, false},
 		{"invalid,50", nil, true},
 		{"", nil, true},
+		{",", nil, true},
+		{"50,,90", nil, true},
 	}
 
 	for _, tt := range tests {
