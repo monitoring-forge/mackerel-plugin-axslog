@@ -39,6 +39,13 @@ func TestStatsSetDuration(t *testing.T) {
 	}
 }
 
+var testPercentileTargets = []PercentileTarget{
+	{Name: "50_percentile", Value: 50.0},
+	{Name: "90_percentile", Value: 90.0},
+	{Name: "99_percentile", Value: 99.0},
+	{Name: "99_9_percentile", Value: 99.9},
+}
+
 func TestDisplay(t *testing.T) {
 	s := NewStats()
 	s.Append(0.010, []byte("200"))
@@ -48,16 +55,20 @@ func TestDisplay(t *testing.T) {
 
 	require.Equal(t, 3, s.percentiles.Count(), "percentiles count = %d; want 3", s.percentiles.Count())
 
-	output := s.Display("test")
-	assert.Contains(t, output, "axslog.latency_test.average")
-	assert.Contains(t, output, "axslog.access_num_test.2xx_count")
-	assert.Contains(t, output, "axslog.access_ratio_test.5xx_percentage")
+	output := s.Display(testPercentileTargets, "test")
+	assert.Contains(t, output, "axslog.latency_test.average\t0.043333\t")
+	assert.Contains(t, output, "axslog.access_num_test.2xx_count\t0.033333\t")
+	assert.Contains(t, output, "axslog.access_ratio_test.4xx_percentage\t0.000000\t")
+	assert.Contains(t, output, "axslog.latency_test.50_percentile\t0.020000\t")
+	assert.Contains(t, output, "axslog.latency_test.90_percentile\t0.084000\t")
+	assert.Contains(t, output, "axslog.latency_test.99_percentile\t0.098400\t")
+	assert.Contains(t, output, "axslog.latency_test.99_9_percentile\t0.099840\t")
 }
 
 func TestDisplayNoData(t *testing.T) {
 	s := NewStats()
 
-	output := s.Display("empty")
+	output := s.Display(testPercentileTargets, "empty")
 	if len(output) != 0 {
 		t.Errorf("output should be empty, got: %s", output)
 	}
@@ -72,17 +83,20 @@ func TestDisplayAll(t *testing.T) {
 	s2.Append(0.020, []byte("404"))
 	s2.SetDuration(60.0)
 
-	output := DisplayAll([]*Stats{s1, s2}, "all")
-	assert.Contains(t, output, "axslog.latency_all.average")
-	assert.Contains(t, output, "axslog.access_num_all.2xx_count")
-	assert.Contains(t, output, "axslog.access_num_all.4xx_count")
+	output := DisplayAll([]*Stats{s1, s2}, testPercentileTargets, "all")
+	assert.Contains(t, output, "axslog.latency_all.average\t0.015000\t")
+	assert.Contains(t, output, "axslog.access_num_all.2xx_count\t0.016667\t")
+	assert.Contains(t, output, "axslog.access_num_all.4xx_count\t0.016667\t")
+	assert.Contains(t, output, "axslog.latency_all.50_percentile\t0.015000\t")
+	assert.Contains(t, output, "axslog.latency_all.90_percentile\t0.019000\t")
+	assert.Contains(t, output, "axslog.latency_all.99_percentile\t0.019900\t")
 }
 
 func TestDisplayAllNoDuration(t *testing.T) {
 	s := NewStats()
 	s.Append(0.010, []byte("200"))
 
-	output := DisplayAll([]*Stats{s}, "noduration")
+	output := DisplayAll([]*Stats{s}, testPercentileTargets, "noduration")
 	if strings.Contains(output, "axslog.access_num_") {
 		t.Error("output should not contain access_num when duration is zero")
 	}
@@ -123,7 +137,7 @@ func TestDisplayAllAggregatedPercentages(t *testing.T) {
 	s1.Append(0.010, []byte("200"))
 	s1.SetDuration(60.0)
 
-	output := DisplayAll([]*Stats{s1}, "single")
+	output := DisplayAll([]*Stats{s1}, testPercentileTargets, "single")
 	if !strings.Contains(output, "axslog.access_ratio_single.2xx_percentage\t100.000000\t") {
 		t.Errorf("2xx percentage not 100, got: %s", output)
 	}

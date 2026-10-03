@@ -100,7 +100,7 @@ func (s *Stats) SetDuration(d float64) {
 	s.duration = d
 }
 
-func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string, now uint64) error {
+func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, percentileTargets []PercentileTarget, keyPrefix string, now uint64) error {
 	if percentile == nil || percentile.Count() == 0 {
 		return nil
 	}
@@ -111,12 +111,12 @@ func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string
 	if sorted != nil {
 		mean, _ := sorted.Mean()
 		fmt.Fprintf(w, "axslog.latency_%s.average\t%f\t%d\n", keyPrefix, mean, now)
-		for _, p := range []int{90, 95, 99} {
-			pValue, err := sorted.Percentile(float64(p))
+		for _, target := range percentileTargets {
+			pValue, err := sorted.Percentile(target.Value)
 			if err != nil {
-				log.Printf("error getting percentile %d: %v\n", p, err)
+				log.Printf("error getting percentile %s: %v\n", target.Name, err)
 			} else {
-				fmt.Fprintf(w, "axslog.latency_%s.%d_percentile\t%f\t%d\n", keyPrefix, p, pValue, now)
+				fmt.Fprintf(w, "axslog.latency_%s.%s\t%f\t%d\n", keyPrefix, target.Name, pValue, now)
 			}
 		}
 	}
@@ -124,11 +124,11 @@ func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, keyPrefix string
 }
 
 // Display :
-func (s *Stats) Display(keyPrefix string) string {
+func (s *Stats) Display(percentileTargets []PercentileTarget, keyPrefix string) string {
 	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
 
-	err := displayPercentiles(&buf, s.percentiles, keyPrefix, now)
+	err := displayPercentiles(&buf, s.percentiles, percentileTargets, keyPrefix, now)
 	if err != nil {
 		log.Printf("error displaying percentiles: %v\n", err)
 	}
@@ -154,7 +154,7 @@ func (s *Stats) Display(keyPrefix string) string {
 }
 
 // DisplayAll :
-func DisplayAll(statsAll []*Stats, keyPrefix string) string {
+func DisplayAll(statsAll []*Stats, percentileTargets []PercentileTarget, keyPrefix string) string {
 	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
 
@@ -185,7 +185,7 @@ func DisplayAll(statsAll []*Stats, keyPrefix string) string {
 		}
 	}
 
-	err := displayPercentiles(&buf, allPercentiles, keyPrefix, now)
+	err := displayPercentiles(&buf, allPercentiles, percentileTargets, keyPrefix, now)
 	if err != nil {
 		log.Printf("error displaying all percentiles: %v\n", err)
 	}

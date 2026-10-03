@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,6 +30,22 @@ func TestHumanBytesUnmarshalFlagInvalid(t *testing.T) {
 	if err := hb.UnmarshalFlag("invalid"); err == nil {
 		t.Error("UnmarshalFlag should return error for invalid input")
 	}
+}
+
+func TestValidate(t *testing.T) {
+	opt := &Opt{
+		Percentiles: "50,90,99",
+	}
+	err := opt.validate(nil)
+	require.NoError(t, err)
+}
+
+func TestValidateInvalid(t *testing.T) {
+	opt := &Opt{
+		Percentiles: "",
+	}
+	err := opt.validate(nil)
+	require.Error(t, err)
 }
 
 func generateFile(b testing.TB, dir, filename string, numLines int, format string) {
@@ -138,6 +155,11 @@ func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doO
 			KeyPrefix:  keyPrefix,
 			Quiet:      true,
 			workdir:    dir,
+			percentiles: []axslog.PercentileTarget{
+				{Name: "50_percentile", Value: 50.0},
+				{Name: "90_percentile", Value: 90.0},
+				{Name: "99_percentile", Value: 99.0},
+			},
 		}
 
 		s, err := opt.getFileStats(posFile, opt.LogFile)
@@ -145,7 +167,7 @@ func benchParserAndDisplay(b *testing.B, dir, filename string, numLines int, doO
 		require.NotNil(b, s)
 
 		if doOutput {
-			_ = s.Display(keyPrefix)
+			_ = s.Display(opt.percentiles, keyPrefix)
 		}
 		b.StopTimer()
 		require.Equal(b, float64(numLines), s.Dump()["total"])
