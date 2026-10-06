@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.4.20](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.19...v0.4.20) - 2026-10-06
+
+- optimize with flat json parsing by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/113
+- ci: bump Songmu/tagpr from 1.20.3 to 1.21.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/112
+
 ## [v0.4.19](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.18...v0.4.19) - 2026-10-03
 
 - feat: add support for custom percentiles in axslog plugin by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/110
