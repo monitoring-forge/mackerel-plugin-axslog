@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
@@ -54,6 +55,46 @@ func TestParse(t *testing.T) {
 	}
 	if dump["c2xx"] != 1.0 {
 		t.Errorf("C2xx = %f; want 1.0", dump["c2xx"])
+	}
+}
+
+func TestParseMultipleStatusKeys(t *testing.T) {
+	testCases := []struct {
+		statusKeys  []string
+		expected2xx float64
+		expected4xx float64
+	}{
+		{[]string{"status", "http_status"}, 1.0, 0.0},
+		{[]string{"http_status", "status"}, 0.0, 1.0},
+	}
+	for _, tt := range testCases {
+		t.Run(strings.Join(tt.statusKeys, ","), func(t *testing.T) {
+			opt := &Opt{
+				Format:     "ltsv",
+				PtimeKey:   "ptime",
+				StatusKeys: tt.statusKeys,
+			}
+			stats := axslog.NewStats()
+			p := opt.NewParser(stats)
+
+			input := []byte("time:08/Mar/2017:14:12:40 +0900	status:200	http_status:404	ptime:0.030	host:10.20.30.40	req:GET /example/path HTTP/1.1	method:GET	size:941	ua:Mozilla/5.0 (Linux; Android 4.4.2; SO-01F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Mobile Safari/537.36")
+			err := p.Parse(input)
+			if err != nil {
+				t.Errorf("Parse() returned an error: %v", err)
+			}
+
+			dump := stats.Dump()
+			if dump["total"] != 1.0 {
+				t.Errorf("Total = %f; want 1.0", dump["total"])
+			}
+			if dump["c2xx"] != tt.expected2xx {
+				t.Errorf("C2xx = %f; want %f", dump["c2xx"], tt.expected2xx)
+			}
+			if dump["c4xx"] != tt.expected4xx {
+				t.Errorf("C4xx = %f; want %f", dump["c4xx"], tt.expected4xx)
+			}
+
+		})
 	}
 }
 

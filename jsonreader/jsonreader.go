@@ -2,52 +2,75 @@ package jsonreader
 
 import (
 	"bytes"
+	"errors"
 
 	"github.com/buger/jsonparser"
 	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
-// Reader struct
+// Reader represents a JSON reader that extracts ptime and status values based on specified keys.
 type Reader struct {
-	keys [][]string
+	keys [][]byte
 }
 
-// New :
+// New creates a new Reader instance with the specified ptime key and status keys.
 func New(ptimeKey string, statusKeys []string) *Reader {
-	keys := make([][]string, 0, len(statusKeys)+1)
-	keys = append(keys, []string{ptimeKey})
+	keys := make([][]byte, 0, len(statusKeys)+1)
+	keys = append(keys, []byte(ptimeKey))
 	for _, stKey := range statusKeys {
-		keys = append(keys, []string{stKey})
+		keys = append(keys, []byte(stKey))
 	}
 	return &Reader{keys}
 }
 
 var bHif = []byte("-")
+var errFlatPathsFound = errors.New("all flat JSON paths found")
 
-// Parse :
+// Parse parses the given JSON data and returns the flags, ptime, and status values.
+// It returns axslog.PtimeFlag and axslog.StatusFlag based on the presence of the corresponding keys.
+// If a key is not found or its value is "-", it is skipped.
+// nolint:gocognit
 func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 	c := 0
 	var pt []byte
 	var st []byte
+
+	remaining := len(r.keys)
 	stIndex := len(r.keys)
-	jsonparser.EachKey(data, func(idx int, value []byte, vt jsonparser.ValueType, err error) {
+
+	err := jsonparser.ObjectEach(data, func(key, value []byte, valueType jsonparser.ValueType, _ int) error {
 		// `-` はskip
 		if bytes.Equal(value, bHif) || len(value) == 0 {
-			return
+			return nil
 		}
-		switch {
-		case idx == 0:
-			//ptime
-			c = c | axslog.PtimeFlag
-			pt = value
-		case idx > 0:
-			//status
-			c = c | axslog.StatusFlag
-			if idx < stIndex {
-				stIndex = idx
-				st = value
+		for i, k := range r.keys {
+			if !bytes.Equal(key, k) {
+				continue
+			}
+			remaining--
+			switch i {
+			case 0:
+				// ptime key
+				c = c | axslog.PtimeFlag
+				pt = value
+			default:
+				// status keys
+				// status は先に指定したもの(iが小さい)を優先する
+				c = c | axslog.StatusFlag
+				if i < stIndex {
+					stIndex = i
+					st = value
+				}
 			}
 		}
-	}, r.keys...)
+		if remaining == 0 {
+			return errFlatPathsFound
+		}
+		return nil
+	})
+	if err != nil && err != errFlatPathsFound { //nolint:errorlint
+		return 0, []byte(""), []byte("")
+	}
+
 	return c, pt, st
 }
