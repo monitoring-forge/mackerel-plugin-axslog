@@ -168,6 +168,13 @@ func (opt *Opt) validate(_ []string) error {
 	}
 	opt.percentiles = targets
 
+	if len(opt.StatusKeys) == 0 {
+		return fmt.Errorf("at least one status key must be specified")
+	}
+	if len(opt.StatusKeys) > 60 {
+		return fmt.Errorf("at most 60 status keys can be specified")
+	}
+
 	return nil
 }
 

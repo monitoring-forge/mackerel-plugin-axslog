@@ -37,6 +37,7 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 
 	remaining := len(r.keys)
 	stIndex := len(r.keys)
+	var found uint64
 
 	err := jsonparser.ObjectEach(data, func(key, value []byte, valueType jsonparser.ValueType, _ int) error {
 		// `-` はskip
@@ -44,9 +45,11 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 			return nil
 		}
 		for i, k := range r.keys {
-			if !bytes.Equal(key, k) {
+			bit := uint64(1) << i
+			if found&bit != 0 || !bytes.Equal(key, k) {
 				continue
 			}
+			found |= bit
 			remaining--
 			switch i {
 			case 0:

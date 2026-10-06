@@ -35,6 +35,7 @@ func TestHumanBytesUnmarshalFlagInvalid(t *testing.T) {
 func TestValidate(t *testing.T) {
 	opt := &Opt{
 		Percentiles: "50,90,99",
+		StatusKeys:  []string{"status"},
 	}
 	err := opt.validate(nil)
 	require.NoError(t, err)
@@ -43,8 +44,25 @@ func TestValidate(t *testing.T) {
 func TestValidateInvalid(t *testing.T) {
 	opt := &Opt{
 		Percentiles: "",
+		StatusKeys:  []string{"status"},
 	}
 	err := opt.validate(nil)
+	require.Error(t, err)
+}
+
+func TestValidateInvalidStatusKeys(t *testing.T) {
+	opt := &Opt{
+		Percentiles: "50,90,99",
+		StatusKeys:  []string{},
+	}
+	err := opt.validate(nil)
+	require.Error(t, err)
+
+	opt = &Opt{
+		Percentiles: "50,90,99",
+		StatusKeys:  make([]string, 61),
+	}
+	err = opt.validate(nil)
 	require.Error(t, err)
 }
 
