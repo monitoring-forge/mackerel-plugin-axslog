@@ -27,6 +27,7 @@ mackerel-plugin-axslog*
 vendor/
 dist/
 *~
+/bench/
 
 demo/tmp
 demo/demo.log
