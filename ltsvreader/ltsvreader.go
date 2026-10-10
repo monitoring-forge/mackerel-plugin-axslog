@@ -55,17 +55,15 @@ func (r *Reader) Parse(data []byte) ([]byte, []byte) {
 				st = value
 			}
 		}
-		if remaining == 0 {
-			return ltsvparser.Cancel
-		}
 		// If both ptime and status are found and the first status key is set, stop parsing early.
-		if pt != nil && st != nil && stIndex == 1 {
+		if remaining == 0 || (pt != nil && st != nil && stIndex == 1) {
 			return ltsvparser.Cancel
 		}
 		return nil
 	}, r.keys...)
 	if err != nil {
 		log.Printf("Parse error: %v", err)
+		return nil, nil
 	}
 	return pt, st
 

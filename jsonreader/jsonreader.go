@@ -3,6 +3,7 @@ package jsonreader
 import (
 	"bytes"
 	"errors"
+	"log"
 
 	"github.com/buger/jsonparser"
 )
@@ -61,17 +62,15 @@ func (r *Reader) Parse(data []byte) ([]byte, []byte) {
 				}
 			}
 		}
-		if remaining == 0 {
-			return errFlatPathsFound
-		}
 		// If both ptime and status are found and the first status key is set, stop parsing early.
-		if pt != nil && st != nil && stIndex == 1 {
+		if remaining == 0 || (pt != nil && st != nil && stIndex == 1) {
 			return errFlatPathsFound
 		}
 		return nil
 	})
 	if err != nil && err != errFlatPathsFound { //nolint:errorlint
-		return pt, st
+		log.Printf("Parse error: %v", err)
+		return nil, nil
 	}
 
 	return pt, st
