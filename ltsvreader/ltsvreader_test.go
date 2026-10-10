@@ -35,6 +35,20 @@ func TestParseMultiStatus(t *testing.T) {
 	}
 }
 
+func TestParseDuplicatedKeys(t *testing.T) {
+	r := New("reqtime", []string{"status"})
+	i, rt, st := r.Parse([]byte(`status:200	status:201	reqtime:0.03`))
+	if i != axslog.AllFlagOK {
+		t.Error("allflag not ok")
+	}
+	if !bytes.Equal(rt, []byte("0.03")) {
+		t.Error("reqtime is not 0.03", string(rt))
+	}
+	if !bytes.Equal(st, []byte("200")) {
+		t.Error("status is not 200", string(st))
+	}
+}
+
 func TestParseHyphen(t *testing.T) {
 	r := New("request_time", []string{"status"})
 	i, rt, st := r.Parse([]byte("time:2022-12-14T03:29:26+09:00	host:0.0.0.0	remote_addr:1.1.1.1	status:200	request_time:0.001	referer:-	user_agent:curl/7.81.0	upstream_addr:2.2.2.2:443	upstream_response_time:0.001"))

@@ -30,12 +30,22 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 	c := 0
 	var pt []byte
 	var st []byte
+
+	remaining := len(r.keys)
 	stIndex := len(r.keys)
+	var found uint64
+
 	err := ltsvparser.Each(data, func(idx int, value []byte) error {
 		// `-` はskip
 		if bytes.Equal(value, bHif) || len(value) == 0 {
 			return nil
 		}
+		bit := uint64(1) << idx
+		if found&bit != 0 {
+			return nil
+		}
+		found |= bit
+		remaining--
 		switch {
 		case idx == 0:
 			//ptime
@@ -49,7 +59,7 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 				st = value
 			}
 		}
-		if c == axslog.AllFlagOK {
+		if remaining == 0 {
 			return ltsvparser.Cancel
 		}
 		return nil
