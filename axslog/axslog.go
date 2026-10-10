@@ -10,21 +10,12 @@ import (
 	"github.com/monitoring-forge/sampdo"
 )
 
-var (
-	// PtimeFlag : ptime is exists
-	PtimeFlag = 1
-	// StatusFlag : stattus is exists
-	StatusFlag = 2
-	// AllFlagOK : all OK
-	AllFlagOK = 3
-)
-
-// Reader :
+// Reader defines the interface for parsing log entries to extract processing time and status code.
 type Reader interface {
-	Parse([]byte) (int, []byte, []byte)
+	Parse([]byte) (ptime []byte, status []byte)
 }
 
-// Stats :
+// Stats holds the aggregated statistics for HTTP status codes and request processing times.
 type Stats struct {
 	percentiles *sampdo.Sampdo
 	c1xx        float64
@@ -37,14 +28,14 @@ type Stats struct {
 	duration    float64
 }
 
-// StatsCh :
+// StatsCh holds a single statistics snapshot along with the associated log file and any error encountered.
 type StatsCh struct {
 	Stats   *Stats
 	Logfile string
 	Err     error
 }
 
-// NewStats :
+// NewStats creates and returns a new Stats instance with initialized percentiles.
 func NewStats() *Stats {
 	sampdo := sampdo.New(sampdo.WithInitialCapacity(1024))
 	return &Stats{
@@ -52,7 +43,7 @@ func NewStats() *Stats {
 	}
 }
 
-// Dump status for debug/test
+// Dump returns a map of the current status counts for debugging or testing purposes.
 func (s *Stats) Dump() map[string]float64 {
 	return map[string]float64{
 		"c1xx":  s.c1xx,
@@ -65,7 +56,7 @@ func (s *Stats) Dump() map[string]float64 {
 	}
 }
 
-// Append adds a new request's processing time and status code to the statistics.
+// Append updates the statistics with a new request's processing time and status code.
 func (s *Stats) Append(ptime float64, status []byte) {
 	if bytes.Equal(status, []byte("499")) {
 		s.c499++
@@ -95,7 +86,7 @@ func (s *Stats) Append(ptime float64, status []byte) {
 	}
 }
 
-// SetDuration :
+// SetDuration sets the duration over which the statistics were collected.
 func (s *Stats) SetDuration(d float64) {
 	s.duration = d
 }
@@ -123,7 +114,7 @@ func displayPercentiles(w io.Writer, percentile *sampdo.Sampdo, percentileTarget
 	return nil
 }
 
-// Display :
+// Display returns a string representation of the statistics, including percentiles and ratios, formatted for output.
 func (s *Stats) Display(percentileTargets []PercentileTarget, keyPrefix string) string {
 	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())
@@ -153,7 +144,7 @@ func (s *Stats) Display(percentileTargets []PercentileTarget, keyPrefix string) 
 	return buf.String()
 }
 
-// DisplayAll :
+// DisplayAll returns a string representation of the aggregated statistics from multiple Stats instances, including percentiles and ratios, formatted for output.
 func DisplayAll(statsAll []*Stats, percentileTargets []PercentileTarget, keyPrefix string) string {
 	var buf bytes.Buffer
 	now := uint64(time.Now().Unix())

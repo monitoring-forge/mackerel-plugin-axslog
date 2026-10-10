@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/monitoring-forge/ltsvparser"
-	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
 // Reader struct
@@ -26,8 +25,7 @@ func New(ptimeKey string, statusKeys []string) *Reader {
 var bHif = []byte("-")
 
 // Parse
-func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
-	c := 0
+func (r *Reader) Parse(data []byte) ([]byte, []byte) {
 	var pt []byte
 	var st []byte
 
@@ -49,11 +47,9 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 		switch {
 		case idx == 0:
 			//ptime
-			c = c | axslog.PtimeFlag
 			pt = value
 		case idx > 0:
-			//status
-			c = c | axslog.StatusFlag
+			//status keyは先に指定したもの(iが小さい)を優先する
 			if idx < stIndex {
 				stIndex = idx
 				st = value
@@ -62,11 +58,15 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 		if remaining == 0 {
 			return ltsvparser.Cancel
 		}
+		// If both ptime and status are found and the first status key is set, stop parsing early.
+		if pt != nil && st != nil && stIndex == 1 {
+			return ltsvparser.Cancel
+		}
 		return nil
 	}, r.keys...)
 	if err != nil {
 		log.Printf("Parse error: %v", err)
 	}
-	return c, pt, st
+	return pt, st
 
 }

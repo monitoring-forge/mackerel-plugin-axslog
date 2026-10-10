@@ -57,12 +57,12 @@ func (p *parser) Parse(b []byte) error {
 			b = b[i:]
 		}
 	}
-	c, pt, st := p.ar.Parse(b)
-	if c&axslog.PtimeFlag == 0 {
+	pt, st := p.ar.Parse(b)
+	if len(pt) == 0 {
 		log.Printf("No ptime. continue key:%s", p.opt.PtimeKey)
 		return nil
 	}
-	if c&axslog.StatusFlag == 0 {
+	if len(st) == 0 {
 		log.Printf("No status. continue key:%v", p.opt.StatusKeys)
 		return nil
 	}

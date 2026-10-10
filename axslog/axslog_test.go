@@ -102,18 +102,6 @@ func TestDisplayAllNoDuration(t *testing.T) {
 	}
 }
 
-func TestFlags(t *testing.T) {
-	if PtimeFlag != 1 {
-		t.Errorf("PtimeFlag = %d; want 1", PtimeFlag)
-	}
-	if StatusFlag != 2 {
-		t.Errorf("StatusFlag = %d; want 2", StatusFlag)
-	}
-	if AllFlagOK != 3 {
-		t.Errorf("AllFlagOK = %d; want 3", AllFlagOK)
-	}
-}
-
 func TestStatsAppendAllStatusClasses(t *testing.T) {
 	s := NewStats()
 	s.Append(0.001, []byte("100"))
