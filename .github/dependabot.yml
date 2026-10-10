@@ -11,10 +11,16 @@ updates:
       default-days: 7
     ignore:
       - dependency-name: "the-pr-agent/pr-agent"
+      - dependency-name: "actions/github-script"
     groups:
+      tagpr:
+        patterns:
+          - "Songmu/tagpr"
       dependencies:
         patterns:
           - "*"
+        exclude-patterns:
+          - "Songmu/tagpr"
     open-pull-requests-limit: 20
 
   - package-ecosystem: gomod

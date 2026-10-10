@@ -1,0 +1,147 @@
+name: Auto-merge tagpr updates
+
+on:
+  workflow_run:
+    workflows: [test, Tests, CI]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: tagpr-auto-merge-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    if: >-
+      github.repository_owner == 'monitoring-forge' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Verify tests and tagpr-only changes
+        id: verify
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const fullName = `${owner}/${repo}`;
+            const eventRun = context.payload.workflow_run;
+            const {data: run} = await github.rest.actions.getWorkflowRun({owner, repo, run_id: eventRun.id});
+            if (run.status !== 'completed' || run.conclusion !== 'success' ||
+                run.run_attempt !== eventRun.run_attempt ||
+                !['push', 'pull_request'].includes(run.event) ||
+                run.head_repository?.full_name !== fullName ||
+                !['.github/workflows/test.yml', '.github/workflows/ci.yml'].includes(run.path?.split('@')[0])) {
+              core.info('Skip: no current successful test run in this repository.');
+              return;
+            }
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', head: `${owner}:${run.head_branch}`, per_page: 100,
+            });
+            for (const candidate of prs) {
+              const {data: pr} = await github.rest.pulls.get({owner, repo, pull_number: candidate.number});
+              if (pr.user.login !== 'dependabot[bot]' || pr.draft ||
+                  pr.head.repo?.full_name !== fullName || pr.head.sha !== run.head_sha ||
+                  pr.base.ref !== context.payload.repository.default_branch) continue;
+
+              // Inspect data only: never check out or execute code from the PR.
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner, repo, pull_number: pr.number, per_page: 100,
+              });
+              if (!files.length || files.length !== pr.changed_files) continue;
+              let tagprOnly = true;
+              const normalize = text => text.replace(
+                /^(\s*(?:-\s+)?uses:\s*Songmu\/tagpr@)[a-zA-Z0-9._/-]+(?:[ \t]+#[^\r\n]*)?[ \t]*$/gm,
+                '$1<ref>',
+              );
+              for (const file of files) {
+                if (file.status !== 'modified' || !/^\.github\/workflows\/[^/]+\.ya?ml$/.test(file.filename)) {
+                  tagprOnly = false;
+                  break;
+                }
+                const read = async ref => {
+                  const {data} = await github.rest.repos.getContent({owner, repo, path: file.filename, ref});
+                  if (data.type !== 'file' || data.encoding !== 'base64') throw new Error('Unexpected file response');
+                  return Buffer.from(data.content, 'base64').toString('utf8');
+                };
+                const before = await read(pr.base.sha);
+                const after = await read(pr.head.sha);
+                if (before === after || normalize(before) !== normalize(after)) {
+                  tagprOnly = false;
+                  break;
+                }
+              }
+              if (!tagprOnly) {
+                core.info(`Skip #${pr.number}: changes are not limited to Songmu/tagpr references.`);
+                continue;
+              }
+
+              // Reject a superseded success or a pending/failed rerun for this exact head.
+              const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+                owner, repo, workflow_id: run.workflow_id, head_sha: pr.head.sha,
+                branch: pr.head.ref, event: run.event, per_page: 100,
+              });
+              const latest = runs.sort((a, b) => b.id - a.id)[0];
+              if (!latest || latest.id !== run.id || latest.status !== 'completed' ||
+                  latest.conclusion !== 'success' || latest.run_attempt !== run.run_attempt) continue;
+
+              // REST omits allow_* settings for read-only tokens. GraphQL exposes them explicitly.
+              const {repository} = await github.graphql(`
+                query MergeMethods($owner: String!, $repo: String!) {
+                  repository(owner: $owner, name: $repo) {
+                    mergeCommitAllowed
+                    squashMergeAllowed
+                    rebaseMergeAllowed
+                  }
+                }
+              `, {owner, repo});
+              if (!repository || !['mergeCommitAllowed', 'squashMergeAllowed', 'rebaseMergeAllowed']
+                  .every(key => typeof repository[key] === 'boolean')) {
+                throw new Error('Could not determine enabled merge methods');
+              }
+              const method = repository.mergeCommitAllowed ? 'merge' :
+                repository.squashMergeAllowed ? 'squash' : repository.rebaseMergeAllowed ? 'rebase' : null;
+              if (!method) throw new Error('No merge method is enabled');
+              core.setOutput('pull-number', pr.number);
+              core.setOutput('head-sha', pr.head.sha);
+              core.setOutput('merge-method', method);
+              return;
+            }
+
+      - name: Generate repository-scoped merge token
+        if: steps.verify.outputs.pull-number != ''
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Merge with GitHub App to trigger push workflows
+        if: steps.verify.outputs.pull-number != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_NUMBER: ${{ steps.verify.outputs.pull-number }}
+          HEAD_SHA: ${{ steps.verify.outputs.head-sha }}
+          MERGE_METHOD: ${{ steps.verify.outputs.merge-method }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const {owner, repo} = context.repo;
+            const pull_number = Number(process.env.PR_NUMBER);
+            // The App token triggers push workflows; the SHA rejects a newer push.
+            const {data: result} = await github.rest.pulls.merge({
+              owner, repo, pull_number, sha: process.env.HEAD_SHA,
+              merge_method: process.env.MERGE_METHOD,
+            });
+            if (!result.merged) throw new Error(result.message);
+            core.info(`Merged #${pull_number}: ${result.sha}`);
