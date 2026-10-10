@@ -3,9 +3,9 @@ package jsonreader
 import (
 	"bytes"
 	"errors"
+	"log"
 
 	"github.com/buger/jsonparser"
-	"github.com/monitoring-forge/mackerel-plugin-axslog/axslog"
 )
 
 // Reader represents a JSON reader that extracts ptime and status values based on specified keys.
@@ -30,8 +30,7 @@ var errFlatPathsFound = errors.New("all flat JSON paths found")
 // It returns axslog.PtimeFlag and axslog.StatusFlag based on the presence of the corresponding keys.
 // If a key is not found or its value is "-", it is skipped.
 // nolint:gocognit
-func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
-	c := 0
+func (r *Reader) Parse(data []byte) ([]byte, []byte) {
 	var pt []byte
 	var st []byte
 
@@ -54,26 +53,25 @@ func (r *Reader) Parse(data []byte) (int, []byte, []byte) {
 			switch i {
 			case 0:
 				// ptime key
-				c = c | axslog.PtimeFlag
 				pt = value
 			default:
-				// status keys
-				// status は先に指定したもの(iが小さい)を優先する
-				c = c | axslog.StatusFlag
+				// status key は先に指定したもの(iが小さい)を優先する
 				if i < stIndex {
 					stIndex = i
 					st = value
 				}
 			}
 		}
-		if remaining == 0 {
+		// If both ptime and status are found and the first status key is set, stop parsing early.
+		if remaining == 0 || (pt != nil && st != nil && stIndex == 1) {
 			return errFlatPathsFound
 		}
 		return nil
 	})
 	if err != nil && err != errFlatPathsFound { //nolint:errorlint
-		return 0, []byte(""), []byte("")
+		log.Printf("Parse error: %v", err)
+		return nil, nil
 	}
 
-	return c, pt, st
+	return pt, st
 }

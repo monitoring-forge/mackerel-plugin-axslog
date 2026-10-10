@@ -4,7 +4,7 @@ LDFLAGS=-ldflags "-w -s -X main.version=${VERSION} -X main.commit=${GITCOMMIT}"
 
 all: mackerel-plugin-axslog
 
-.PHONY: mackerel-plugin-axslog
+.PHONY: mackerel-plugin-axslog all check lint bench linux
 
 mackerel-plugin-axslog: main.go parser.go axslog/*.go jsonreader/*.go ltsvreader/*.go
 	go build $(LDFLAGS) -o mackerel-plugin-axslog
