@@ -20,11 +20,11 @@ github.com/monitoring-forge/ltsvparser v0.2.9 h1:wvIM67xmZBDNIcLAR0J05+rAt3lia2e
 github.com/monitoring-forge/ltsvparser v0.2.9/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
 github.com/monitoring-forge/saferio v0.0.3 h1:1i3va3QQ9QPunwsgekDzC8RV91KT1Xcb++Z0Dnl9zFY=
 github.com/monitoring-forge/saferio v0.0.3/go.mod h1:1o6nyDJ4isee9VH3eUx5uw4C7LEgPFsq7M3tO+VMyvM=
-github.com/monitoring-forge/sampdo v0.0.3 h1:G9BK4U0EgTrc8Y6yXS1REN6CRiTtNrDcIcb6R1Wubiw=
-github.com/monitoring-forge/sampdo v0.0.3/go.mod h1:HrklVUhA6bhegmUoZnH9X3Kovpe7/KE5x5TSr0Sdtew=
+github.com/monitoring-forge/sampdo v0.0.4 h1:zdowfYjKsTfluKOh/pgyzqal8oy7w7vW6R0WxJfP/3I=
+github.com/monitoring-forge/sampdo v0.0.4/go.mod h1:HrklVUhA6bhegmUoZnH9X3Kovpe7/KE5x5TSr0Sdtew=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 go.yaml.in/yaml/v3 v3.0.5 h1:N6y/pJk8buWs9NY5ERU2HSMfm+IuD/OtfdAnq6kESPw=
 go.yaml.in/yaml/v3 v3.0.5/go.mod h1:HVTZu1O7/Vkt2N+BFy8Zza+lnLsABggaTM2ZpNIGuKg=
-golang.org/x/sys v0.48.0 h1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=
-golang.org/x/sys v0.48.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
+golang.org/x/sys v0.49.0 h1:XbzkgYJHdqh/8m2Uu0W/dQv8nktxx4BFHp1M0gROTXA=
+golang.org/x/sys v0.49.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
