@@ -9,7 +9,7 @@ require (
 	github.com/monitoring-forge/flagrun v0.0.10
 	github.com/monitoring-forge/followparser v0.2.16
 	github.com/monitoring-forge/ltsvparser v0.2.9
-	github.com/monitoring-forge/sampdo v0.0.3
+	github.com/monitoring-forge/sampdo v0.0.4
 	github.com/stretchr/testify v1.12.1
 )
 
@@ -18,6 +18,6 @@ require (
 	github.com/jessevdk/go-flags v1.6.1 // indirect
 	github.com/mackerelio/checkers v0.2.1 // indirect
 	github.com/monitoring-forge/saferio v0.0.3 // indirect
-	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.6 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 )
