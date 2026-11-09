@@ -1,5 +1,20 @@
 # Changelog
 
+## [v0.4.21](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.20...v0.4.21) - 2026-11-09
+
+- .gitignore: add /bench/ to ignore list by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/116
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/115
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/118
+- ci: bump Songmu/tagpr from 1.21.0 to 1.21.1 in the tagpr group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/119
+- fix: resolve duplicated status parsing in ltsvreader by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/120
+- ci: bump Songmu/tagpr from 1.21.1 to 1.21.2 in the tagpr group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/121
+- ci: bump Songmu/tagpr from 1.21.2 to 1.21.3 in the tagpr group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/124
+- ci: bump Songmu/tagpr from 1.21.3 to 1.21.4 in the tagpr group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/127
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/126
+- go: bump the dependencies group across 1 directory with 3 updates by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/128
+- ci: bump goreleaser/goreleaser-action from 7.2.3 to 7.3.0 in the dependencies group across 1 directory by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/129
+- go: bump the dependencies group with 2 updates by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/130
+
 ## [v0.4.20](https://github.com/monitoring-forge/mackerel-plugin-axslog/compare/v0.4.19...v0.4.20) - 2026-10-06
 
 - optimize with flat json parsing by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-axslog/pull/113
