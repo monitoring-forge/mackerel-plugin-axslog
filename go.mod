@@ -19,5 +19,5 @@ require (
 	github.com/mackerelio/checkers v0.2.1 // indirect
 	github.com/monitoring-forge/saferio v0.0.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.6 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 )
